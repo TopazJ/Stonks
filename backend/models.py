@@ -8,7 +8,7 @@ class Employee(models.Model):
 
 
 class EmpAddress(models.Model):
-    employeeID = models.ForeignKey('Employee', on_delete=models.CASCADE())
+    employeeID = models.ForeignKey('Employee', on_delete=models.CASCADE)
     street = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
     province = models.CharField(max_length=50)
@@ -19,7 +19,7 @@ class EmpAddress(models.Model):
 
 
 class EmpName(models.Model):
-    employeeID = models.ForeignKey('Employee', on_delete=models.CASCADE())
+    employeeID = models.ForeignKey('Employee', on_delete=models.CASCADE)
     fname = models.CharField(max_length=50)
     mname = models.CharField(max_length=50)
     lname = models.CharField(max_length=50)
@@ -37,7 +37,7 @@ class Admin(Employee):
 
 
 class MarketMaker(Employee):
-    AdminEmployeeID = models.ForeignKey('Employee', on_delete=models.SET_NULL())
+    AdminEmployeeID = models.ForeignKey('Employee', on_delete=models.SET_NULL, null=True, related_name='AEmpID')
 
 
 class Trade(models.Model):
@@ -87,7 +87,7 @@ class MutualFund(Trade):
 
 
 class Prediction(models.Model):
-    trade = models.ForeignKey('Trade', on_delete=models.PROTECT())
+    trade = models.ForeignKey('Trade', on_delete=models.PROTECT)
     date = models.DateField(auto_now=True)
     result = models.DecimalField(max_digits=7, decimal_places=4)
 
@@ -107,30 +107,30 @@ class Client(models.Model):
 
 
 class Account(models.Model):
-    client = models.ForeignKey('Client', on_delete=models.CASCADE())
-    accountID = models.AutoField()
+    client = models.ForeignKey('Client', on_delete=models.CASCADE)
+    accountID = models.IntegerField(unique=True)
     balance = models.DecimalField(max_digits=12, decimal_places=2)
     is_valid = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('client', 'accoutnID')
+        unique_together = ('client', 'accountID')
 
 
 class Owns(models.Model):
-    client = models.ForeignKey('Client', on_delete=models.CASCADE())
-    account = models.ForeignKey('Account', on_delete=models.CASCADE())
-    trade = models.ForeignKey('Trade', on_delete=models.CASCADE())
+    client = models.ForeignKey('Client', on_delete=models.CASCADE)
+    account = models.ForeignKey('Account', on_delete=models.CASCADE)
+    trade = models.ForeignKey('Trade', on_delete=models.CASCADE)
     quantity = models.IntegerField()
 
     class Meta:
         unique_together = ('client', 'account', 'trade')
 
 
-class Transaction(models.model):
-    market_maker = models.ForeignKey('MarketMaker', on_delete=models.PROTECT())
-    client = models.ForeignKey('Client', on_delete=models.CASCADE())
-    account = models.ForeignKey('Account', on_delete=models.CASCADE())
-    trade = models.ForeignKey('Trade', on_delete=models.CASCADE())
+class Transaction(models.Model):
+    market_maker = models.ForeignKey('MarketMaker', on_delete=models.PROTECT)
+    client = models.ForeignKey('Client', on_delete=models.CASCADE)
+    account = models.ForeignKey('Account', on_delete=models.CASCADE)
+    trade = models.ForeignKey('Trade', on_delete=models.CASCADE)
     quantity = models.IntegerField()
 
     class Meta:
@@ -142,17 +142,17 @@ class Pool(Transaction):
 
 
 class Review(models.Model):
-    client = models.ForeignKey('Client', on_delete=models.CASCADE())
-    account = models.ForeignKey('Account', on_delete=models.CASCADE())
-    support = models.ForeignKey('Support', on_delete=models.PROTECT())
+    client = models.ForeignKey('Client', on_delete=models.CASCADE)
+    account = models.ForeignKey('Account', on_delete=models.CASCADE)
+    support = models.ForeignKey('Support', on_delete=models.PROTECT)
 
     class Meta:
         unique_together = ('client', 'account', 'support')
 
 
 class Help(models.Model):
-    client = models.ForeignKey('Client', on_delete=models.CASCADE())
-    support = models.ForeignKey('Support', on_delete=models.PROTECT())
+    client = models.ForeignKey('Client', on_delete=models.CASCADE)
+    support = models.ForeignKey('Support', on_delete=models.PROTECT)
     ticket_no = models.IntegerField()
 
     class Meta:
@@ -160,8 +160,8 @@ class Help(models.Model):
 
 
 class Enforce(models.Model):
-    client = models.ForeignKey('Client', on_delete=models.CASCADE())
-    admin = models.ForeignKey('Admin', on_delete=models.PROTECT())
+    client = models.ForeignKey('Client', on_delete=models.CASCADE)
+    admin = models.ForeignKey('Admin', on_delete=models.PROTECT)
 
     class Meta:
         unique_together = ('client', 'admin')
