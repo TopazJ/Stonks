@@ -5,7 +5,7 @@ class App extends Component {
 		return (
 			<React.Fragment>
 				<p>This is a test.</p>
-n			</React.Fragment>
+			</React.Fragment>
 		);
 	}
 }
