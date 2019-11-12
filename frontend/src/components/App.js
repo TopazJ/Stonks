@@ -5,6 +5,7 @@ class App extends Component {
 		return (
 			<React.Fragment>
 				<p>This is a test.</p>
+				<p>This is devel branch.</p>
 			</React.Fragment>
 		);
 	}
