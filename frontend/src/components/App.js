@@ -6,6 +6,7 @@ class App extends Component {
 			<React.Fragment>
 				<p>This is a test.</p>
 				<p>This is devel branch.</p>
+				<p>This is Victors devel branch :P</p>
 			</React.Fragment>
 		);
 	}
