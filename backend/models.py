@@ -9,7 +9,7 @@ class Employee(models.Model):
     salary = models.DecimalField(max_digits=9, decimal_places=2)
 
     def __str__(self):
-        return '%s' % (self.employeeID)
+        return '%s' % self.employeeID
 
 
 class EmpAddress(models.Model):
