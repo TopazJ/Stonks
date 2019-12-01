@@ -115,12 +115,9 @@ class Prediction(models.Model):
 
 
 class Client(models.Model):
-    username = models.CharField(max_length=150)
+    username = models.CharField(max_length=150, primary_key=True)
     password = models.CharField(max_length=150)
     is_banned = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ('username', 'password')
 
     def __str__(self):
         return '%s' % self.username
@@ -154,13 +151,25 @@ class Transaction(models.Model):
     client = models.ForeignKey('Client', on_delete=models.CASCADE)
     account = models.ForeignKey('Account', on_delete=models.CASCADE)
     trade = models.ForeignKey('Trade', on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now=True)
     quantity = models.IntegerField()
+    BUY = 'BUY'
+    SELL = 'SELL'
+    TYPE_CHOICES = [
+        (BUY, 'buy'),
+        (SELL, 'sell'),
+    ]
+    type = models.CharField(
+        max_length=4,
+        choices=TYPE_CHOICES,
+        default=BUY,
+    )
 
     class Meta:
-        unique_together = ('client', 'account', 'trade', 'market_maker')
+        unique_together = ('date', 'client')
 
     def __str__(self):
-        return str(self.account) + str(self.trade) + ' %s' % self.quantity
+        return str(self.account) + str(self.trade) + ' %s %s %s' % (self.type, self.quantity, self.date)
 
 
 class Pool(Transaction):
