@@ -87,6 +87,7 @@ def is_eligible_to_sell_stock(username, account, stock, quantity):
 
 
 def sell_trade_transaction_creation(username, stock, quantity):
+
     if isinstance(stock, Trade):
         account, owns = is_eligible_to_sell_stock(username, stock, quantity)
         if account is not None and owns is not None:
