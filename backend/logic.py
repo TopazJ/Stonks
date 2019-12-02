@@ -18,14 +18,6 @@ def check_balance_for_transaction(username, purchase_amount):
     return None, False
 
 
-def purchase_stock_with_account(eligible_account, stock, quantity):
-    if isinstance(eligible_account, Account) and isinstance(stock, Trade):
-        account_owns = Owns(Account.client, Account, stock, quantity)
-        account_owns.save()
-    else:
-        return nullErrorMessage("FATAL ERROR")
-
-
 def buy_trade_transaction_creation(username, stock, quantity):
     """
     user places order
@@ -64,8 +56,11 @@ def transaction_confirmation(transaction, market_maker_username):
 
             owns = Owns.objects.filter(client=transaction.client, account=transaction.account, trade=transaction.trade)
             if len(owns) is 1:
-                owns.update(quantity=owns.quantity + transaction.quantity)
-            elif len(owns) is 0:
+                if transaction.type is transaction.BUY:
+                    owns.update(quantity=owns.quantity + transaction.quantity)
+                elif transaction.type is transaction.SELL:
+                    owns.update(quantity=owns.quantity - transaction.quantity)
+            elif len(owns) is 0 and transaction.type is transaction.BUY:
                 Owns(client=transaction.client, account=transaction.account, trade=transaction.trade,
                      quantity=transaction.quantity).save()
             else:
@@ -76,28 +71,30 @@ def transaction_confirmation(transaction, market_maker_username):
         nullErrorMessage("FATAL ERROR")
 
 
-def is_eligible_to_sell_stock(username, stock, quantity):
+def is_eligible_to_sell_stock(username, account, stock, quantity):
     if isinstance(stock, Trade):
         accounts = Account.objects.exist(Client.objects.filter(username=username))
         if len(accounts) > 0:
-            quantity_sum = 0
             for account in accounts:
                 owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
                 if owns.quantity > quantity:
-                    owns.quantity = owns.quantity - quantity
-                    owns.save()
-                    break
-            # TODO logic for checking multiple accounts and subtracting from them all
+                    return account, owns
         else:
             nullErrorMessage("NO ACCOUNT")
     else:
         nullErrorMessage("FATAL ERROR")
+    return None, None
 
 
-def sell_trade_solo(username, stock, quantity):
+def sell_trade_transaction_creation(username, stock, quantity):
     if isinstance(stock, Trade):
-        if is_eligible_to_sell_stock(username, stock, quantity):
-            print("re")
+        account, owns = is_eligible_to_sell_stock(username, stock, quantity)
+        if account is not None and owns is not None:
+            transaction = Transaction(market_maker=None, client=account.client, account=account,
+                                      trade=stock, quantity=quantity, type=Transaction.SELL)
+            return transaction
+    else:
+        nullErrorMessage("FATAL ERROR")
 
 
 def access_employee_data(employee_id):
