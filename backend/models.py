@@ -1,4 +1,5 @@
 import re
+import uuid
 
 from django.db import models
 
@@ -194,10 +195,7 @@ class Review(models.Model):
 class Help(models.Model):
     client = models.ForeignKey('Client', on_delete=models.CASCADE)
     support = models.ForeignKey('Support', on_delete=models.PROTECT)
-    ticket_no = models.IntegerField()
-
-    class Meta:
-        unique_together = ('client', 'support')
+    ticket_no = models.UUIDField(primary_key=True, default=uuid.uuid4)
 
     def __str__(self):
         return str(self.client) + str(self.support) + ' %s' % self.ticket_no
