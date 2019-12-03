@@ -1,6 +1,8 @@
 from backend.models import *
-#TODO: Notify all users when POOL is complete
-#TODO: Notify user when transaction is complete
+
+
+# TODO: Notify all users when POOL is complete
+# TODO: Notify user when transaction is complete
 
 
 def nullErrorMessage(error_message):
@@ -11,7 +13,7 @@ def nullErrorMessage(error_message):
 
 
 def check_balance_for_buy_transaction(username, purchase_amount):
-    query = Account.objects.exist(Client.objects.filter(username=username))
+    query = Account.objects.filter(client=Client.objects.filter(username=username))
     account_balance_sum = 0
     for account in query:
         balance = account.balance
@@ -78,7 +80,7 @@ def transaction_confirmation(transaction, market_maker_username):
 
 def is_eligible_to_sell_stock(username, account, stock, quantity):
     if isinstance(stock, Trade):
-        accounts = Account.objects.exist(Client.objects.filter(username=username))
+        accounts = Account.objects.filter(client=Client.objects.filter(username=username))
         if len(accounts) > 0:
             for account in accounts:
                 owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
@@ -152,6 +154,7 @@ def pool_confirmation(pool, market_maker_username):
         nullErrorMessage("FATAL ERROR")
 
 
+""" check authenticatipn before every function
 def login(username, password):
     client = Client.objects.get(username)
     if client is not None:
@@ -163,14 +166,15 @@ def login(username, password):
             return client
     else:
         nullErrorMessage("DOES NOT EXIST")
+"""
 
 
 def get_user_accounts(username):
-    return Account.objects.exist(Client.objects.get(username))
+    return Account.objects.filter(client=Client.objects.get(username))
 
 
 def get_user_account(username, accountID):
-    return Account.objects.exist(Client.objects.get(username)).filter(accountID=accountID)
+    return Account.objects.filter(client=Client.objects.get(username)).filter(accountID=accountID)
 
 
 def create_support_ticket(username):
@@ -179,10 +183,38 @@ def create_support_ticket(username):
     Help(client=client, support=support).save()
 
 
-
 def access_employee_data(employee_id):
     employee = Employee.objects.filter(employeeID=employee_id)
     if employee is None:
         return nullErrorMessage("No such Employee")
     else:
         return employee
+
+
+def review_account(account_id, employee_id):
+    account = Account.objects.get(accountID=account_id)
+    Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
+    return account
+
+
+def enforce_rules(account_id, employee_id):
+    account = Account.objects.get(accountID=account_id)
+    Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
+    return account
+
+
+def solve_support_ticket(help_ticket_no):
+    Help.objects.get(ticket_no=help_ticket_no).delete()
+
+
+def solve_support_ticket(help_ob):
+    if isinstance(help_ob, Help):
+        help_ob.delete()
+    else:
+        nullErrorMessage("NO SUCH OBJECT")
+
+
+def get_all_tickets_by_support(employee_id):
+    return Help.objects.filter(support=Support.objects.get(employeeID=employee_id))
+
+
