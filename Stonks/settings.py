@@ -25,7 +25,7 @@ SECRET_KEY = '9r^jz4!(_(c@mt!+m+fc!4=cy#&xk(e2&=no+ujb&z_dlhu&j!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'frontend',
     'backend',
+    'authentication',
 ]
 
 MIDDLEWARE = [
