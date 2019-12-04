@@ -1,8 +1,8 @@
 from backend.models import *
 
-
 # TODO: Notify all users when POOL is complete
 # TODO: Notify user when transaction is complete
+from backend.stock_access import get_stock_price_now
 
 
 def nullErrorMessage(error_message):
@@ -218,3 +218,20 @@ def get_all_tickets_by_support(employee_id):
     return Help.objects.filter(support=Support.objects.get(employeeID=employee_id))
 
 
+def save_prediction(data_ti, ticker):
+    exchange = 'TSX'
+    symbol = ticker
+    company_name = ticker  # TODO get it with alphavantage
+    price = get_stock_price_now(ticker)
+    trade_type = Trade.INDIVIDUAL
+    rating = 3.0
+    risk = Trade.HIGH_RISK
+
+    trade = Trade(exchange=exchange, symbol=symbol, company_name=company_name, price=price, trade_type=trade_type,
+                  rating=rating, risk=risk).save()
+    for key, value in data_ti:
+        Prediction(trade=trade, prediction=value)
+
+
+def get_prediction_history(stock):
+    return Prediction.objects.filter(trade=stock)
