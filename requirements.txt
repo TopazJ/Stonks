@@ -5,5 +5,7 @@ django-rest-knox==4.1.0
 djangorestframework==3.10.3
 pycparser==2.19
 pytz==2019.3
+simplejson==3.17.0
 six==1.13.0
 sqlparse==0.3.0
+yahoo-finance==1.4.0
