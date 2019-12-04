@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 
 
@@ -6,26 +8,35 @@ class Employee(models.Model):
     SSN = models.IntegerField(unique=True)
     salary = models.DecimalField(max_digits=9, decimal_places=2)
 
+    def __str__(self):
+        return '%s' % (self.employeeID)
+
 
 class EmpAddress(models.Model):
-    employeeID = models.ForeignKey('Employee', on_delete=models.CASCADE)
+    employee = models.OneToOneField('Employee', on_delete=models.CASCADE)
     street = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
     province = models.CharField(max_length=50)
     postal_code = models.CharField(max_length=50)
 
     class Meta:
-        unique_together = ('employeeID', 'street', 'city', 'province', 'postal_code')
+        unique_together = ('employee', 'street', 'city', 'province', 'postal_code')
+
+    def __str__(self):
+        return '%s %s %s %s' % (self.street, self.city, self.province, self.postal_code)
 
 
 class EmpName(models.Model):
-    employeeID = models.ForeignKey('Employee', on_delete=models.CASCADE)
+    employee = models.OneToOneField('Employee', on_delete=models.CASCADE)
     fname = models.CharField(max_length=50)
     mname = models.CharField(max_length=50)
     lname = models.CharField(max_length=50)
 
     class Meta:
-        unique_together = ('employeeID', 'fname', 'mname', 'lname')
+        unique_together = ('employee', 'fname', 'mname', 'lname')
+
+    def __str__(self):
+        return '%s %s %s' % (self.fname, self.mname, self.lname)
 
 
 class Support(Employee):
@@ -37,7 +48,7 @@ class Admin(Employee):
 
 
 class MarketMaker(Employee):
-    AdminEmployeeID = models.ForeignKey('Employee', on_delete=models.SET_NULL, null=True, related_name='AEmpID')
+    AdminEmployeeID = models.ForeignKey('Admin', on_delete=models.SET_NULL, null=True, related_name='AEmpID')
 
 
 class Trade(models.Model):
@@ -76,6 +87,9 @@ class Trade(models.Model):
     class Meta:
         unique_together = ('exchange', 'symbol')
 
+    def __str__(self):
+        return '%s %s' % (self.exchange, self.symbol)
+
 
 class ETF(Trade):
     index = models.CharField(max_length=50)
@@ -96,6 +110,9 @@ class Prediction(models.Model):
     class Meta:
         unique_together = ('trade', 'date')
 
+    def __str__(self):
+        return str(self.trade) + ' %s' % self.result
+
 
 class Client(models.Model):
     username = models.CharField(max_length=150)
@@ -104,6 +121,9 @@ class Client(models.Model):
 
     class Meta:
         unique_together = ('username', 'password')
+
+    def __str__(self):
+        return '%s' % self.username
 
 
 class Account(models.Model):
@@ -114,6 +134,9 @@ class Account(models.Model):
 
     class Meta:
         unique_together = ('client', 'accountID')
+
+    def __str__(self):
+        return str(self.client) + ' %s' % self.balance
 
 
 class Owns(models.Model):
@@ -136,9 +159,15 @@ class Transaction(models.Model):
     class Meta:
         unique_together = ('client', 'account', 'trade', 'market_maker')
 
+    def __str__(self):
+        return str(self.account) + str(self.trade) + ' %s' % self.quantity
+
 
 class Pool(Transaction):
     fraction = models.DecimalField(max_digits=3, decimal_places=2)
+
+    def __str__(self):
+        return str(super(self)) + ' %s' % self.fraction
 
 
 class Review(models.Model):
@@ -149,6 +178,9 @@ class Review(models.Model):
     class Meta:
         unique_together = ('client', 'account', 'support')
 
+    def __str__(self):
+        return str(self.client) + str(self.support)
+
 
 class Help(models.Model):
     client = models.ForeignKey('Client', on_delete=models.CASCADE)
@@ -158,6 +190,9 @@ class Help(models.Model):
     class Meta:
         unique_together = ('client', 'support')
 
+    def __str__(self):
+        return str(self.client) + str(self.support) + ' %s' % self.ticket_no
+
 
 class Enforce(models.Model):
     client = models.ForeignKey('Client', on_delete=models.CASCADE)
@@ -166,6 +201,13 @@ class Enforce(models.Model):
     class Meta:
         unique_together = ('client', 'admin')
 
+    def __str__(self):
+        return str(self.client) + str(self.admin)
 
+
+# TODO: not sure this works
 class Manage(models.Model):
-    employeeID = models.ForeignKey('self', on_delete=models.CASCADE)
+    employee = models.ForeignKey('self', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.employee)
