@@ -226,12 +226,36 @@ def save_prediction(data_ti, ticker):
     trade_type = Trade.INDIVIDUAL
     rating = 3.0
     risk = Trade.HIGH_RISK
-
     trade = Trade(exchange=exchange, symbol=symbol, company_name=company_name, price=price, trade_type=trade_type,
-                  rating=rating, risk=risk).save()
+                  rating=rating, risk=risk)
+
+    if Trade.objects.filter(exchange=exchange, symbol=symbol) is None:
+        trade.save()
+    else:
+        Trade.objects.filter(exchange=exchange, symbol=symbol).update(price=price, trade_type=trade_type,
+                                                                      rating=rating, risk=risk)
+
     for key, value in data_ti:
-        Prediction(trade=trade, prediction=value)
+        if Prediction.objects.filter(date=key, trade=trade) is None:
+            Prediction(trade=trade, prediction=value, date=key).save()
 
 
 def get_prediction_history(stock):
     return Prediction.objects.filter(trade=stock)
+
+
+def register_employee(employee_id, ssn, salary):
+    if Employee.objects.get(employeeID=employee_id) is None:
+        Employee(employeeID=employee_id, SSN=ssn, salary=salary)
+    else:
+        nullErrorMessage("ID ALREADY USED")
+
+
+def register_client(username, password):
+    client = Client.objects.get(username=username)
+    if client is None:
+        Client(username=username, password=password, is_banned=False)
+    elif client.is_banned is True:
+        nullErrorMessage("BANNED")
+    else:
+        nullErrorMessage("DUPLICATE")
