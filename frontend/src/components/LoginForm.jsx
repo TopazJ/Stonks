@@ -27,21 +27,26 @@ class LoginForm extends React.Component {
         console.log("Submit!");
         console.log(event.target);
         console.log(JSON.stringify(values));
-        fetch('http://127.0.0.1:8000/login/', {
+        fetch('http://127.0.0.1:8000/auth/login/', {
             method: 'POST',
             body: JSON.stringify(values),
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken':event.target.csrfmiddlewaretoken.value
             }
-        }).then(res => console.log(res));//res.json());
-    // .then(data => console.log(data))
-    // .catch(err => console.error("Error:", err));
+        }).then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.error("Error:", err));
     };
 
     handleClick = (event) =>{
-        event.preventDefault();
         console.log("yeet");
+        fetch('http://127.0.0.1:8000/auth/status/', {
+            method: 'GET'
+        }).then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.error("Error:", err));
+
     };
 
     render() {
