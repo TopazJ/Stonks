@@ -39,7 +39,11 @@ def sell_trade(request):
 def complete_transaction(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
+        result =  transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
+        if result is None:
+            return errorMessage('Unable to complete transaction')
+        else:
+            return result
 
 
 def buy_pool(request):
@@ -57,13 +61,37 @@ def buy_pool(request):
 def complete_pool(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        pool_confirmation(pool=data['pool'], market_maker_username=data['username'])
+        result = pool_confirmation(pool=data['pool'], market_maker_username=data['username'])
+        if result is None:
+            return errorMessage("Unable to complete pool")
+        else:
+            return result
 
 
 def daily_stock(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
+        return successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
+
+
+def create_account (request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        result = register_client(data['username'],data['password'])
+        if result is None:
+            return errorMessage("Unable to create account")
+        else:
+            return result
+
+
+def add_money (request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        result = add_money_to_account(data['username'], data['account_no'], data['amount'])
+        if result is None:
+            return errorMessage("Unable to add money (can't make it rain :( )")
+        else:
+            return result
 
 
 # ViewSets go here (access to models through API
