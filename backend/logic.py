@@ -96,9 +96,9 @@ def transaction_confirmation(transaction_id, market_maker_username):
 def is_eligible_to_sell_stock(username, account, stock, quantity):
     if isinstance(stock, Trade):
         accounts = Account.objects.filter(client=User.objects.get(username=username).client)
-        if len(accounts) > 0:
+        if accounts.exists():
             for account in accounts:
-                owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
+                owns = Owns.objects.get(client=account.client, account=account, trade=stock)
                 if owns is not None and owns.quantity > quantity:
                     return account, owns
     return None, None
@@ -129,7 +129,7 @@ def buy_into_pool(username, symbol, quantity, fraction):
     :param fraction:
     :return:
     """
-    stock = Trade.objects.filter(symbol=symbol, exchange='TSX')
+    stock = Trade.objects.get(symbol=symbol, exchange='TSX')
     if isinstance(stock, Trade):
         eligible_account, can_purchase = check_balance_for_buy_transaction(username, stock.price * quantity * fraction)
         if can_purchase:
@@ -141,17 +141,17 @@ def buy_into_pool(username, symbol, quantity, fraction):
 
 
 def pool_confirmation(date, client, trade, market_maker_username):
-    pool = Pool.objects.filter(date=date, client=client, trade=trade)
+    pool = Pool.objects.get(date=date, client=client, trade=trade)
     if isinstance(pool, Pool):
 
-        market_maker = User.objects.filter(username=market_maker_username).marketMaker
+        market_maker = User.objects.get(username=market_maker_username).marketMaker
         if market_maker is not None:
             pool.market_maker = market_maker
             pool.complete = True
             pool.save()
 
             owns = Owns.objects.filter(client=pool.client, account=pool.account, trade=pool.trade)
-            if len(owns) is 1:
+            if owns.exists():
                 if pool.type is pool.BUY:
                     owns.update(quantity=owns.quantity + pool.quantity)
                 elif pool.type is pool.SELL:
