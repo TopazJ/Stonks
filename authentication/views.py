@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
+from backend.models import MarketMaker
 
 
 def login_user(request):
@@ -39,4 +40,5 @@ def authenticated(request):
         return False
 
 
-
+def is_marketmaker(request):
+    return isinstance(request.user, MarketMaker)
