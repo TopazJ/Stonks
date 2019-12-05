@@ -166,6 +166,7 @@ def get_user_accounts(username):
     accoutns = Account.objects.filter(client=client)
     return accoutns
 
+
 def get_user_account(username, account_no):
     return Account.objects.filter(client=User.objects.filter(username).client).filter(account_no=account_no)
 
@@ -189,7 +190,8 @@ def access_employee_data(employee_id):
 
 
 def review_account(account_no, employee_id, account_username):
-    account = Account.objects.filter(client=User.objects.filter(username=account_username).client, account_no=account_no)
+    account = Account.objects.filter(client=User.objects.filter(username=account_username).client,
+                                     account_no=account_no)
     if account is not None:
         Review(account=account, client=account.client, support=Support.objects.filter(employeeID=employee_id)).save()
         return account
@@ -271,10 +273,11 @@ def register_client(username, password):
 
 
 def get_owns(username, account_no):
-
-    owns = Owns.objects.filter(client=User.objects.filter(username=username).client,
+    client = User.objects.get(username=username).client
+    owns = Owns.objects.filter(client=client,
                                account=Account.objects.filter(account_no=account_no))
     return Trade.objects.filter(symbol=owns.trade.symbol)
+
 
 def create_account(username):
     client = User.objects.get(username=username).client
