@@ -99,12 +99,14 @@ def see_account(request):
         data = json.loads(request.body)
         return successfulMessage(AccountSerializer(get_user_accounts(username=data['username'])))
 
+
 def owns (request):
     data = json.loads(request.body)
     owned = get_owns(data['username'], data['account_no'])
-    return OwnsSerializer(owned)
+    return successfulMessage(OwnsSerializer(owned))
+
 
 def get_accounts (request):
     data = json.loads(request.body)
     accounts = get_user_account(data['username'])
-    return AccountSerializer(accounts)
+    return successfulMessage(AccountSerializer(accounts))
