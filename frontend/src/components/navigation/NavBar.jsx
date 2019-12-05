@@ -58,9 +58,13 @@ class NavBar extends Component {
     }
 
     renderNavButtons() {
+        const style = {
+          padding:'5px'
+        };
         return this.props.buttonLinks.map(l => (
             <NavLink
                 key={l.id}
+                style={style}
                 className="btn btn-outline-warning rounded"
                 to={"/" + l.id}
             >

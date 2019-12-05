@@ -15,7 +15,7 @@ def login_user(request):
             if user.is_active:
                 login(request, user)
         else:
-            response_data = {'status': 'Not Logged in!'}
+            response_data = {'status': "Couldn't log you in, account might not exist!"}
 
         return JsonResponse(response_data)
 
