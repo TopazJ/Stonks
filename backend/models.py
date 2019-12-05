@@ -126,12 +126,12 @@ class Client(models.Model):
 
 class Account(models.Model):
     client = models.ForeignKey('Client', on_delete=models.CASCADE)
-    accountID = models.IntegerField(unique=True)
+    account_no = models.IntegerField()
     balance = models.DecimalField(max_digits=12, decimal_places=2)
     is_valid = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('client', 'accountID')
+        unique_together = ('client', 'account_no')
 
     def __str__(self):
         return str(self.client) + ' %s' % self.balance
@@ -165,9 +165,10 @@ class Transaction(models.Model):
         choices=TYPE_CHOICES,
         default=BUY,
     )
+    complete = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('date', 'client')
+        unique_together = ('date', 'client', 'trade')
 
     def __str__(self):
         return str(self.account) + str(self.trade) + ' %s %s %s' % (self.type, self.quantity, self.date)
