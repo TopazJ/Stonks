@@ -240,8 +240,8 @@ def save_prediction(data_ti, ticker):
     if Trade.objects.filter(exchange=exchange, symbol=symbol).exists():
         trade.save()
     else:
-        Trade.objects.filter(exchange=exchange, symbol=symbol).update(price=price, trade_type=trade_type,
-                                                                      rating=rating, risk=risk)
+        Trade.objects.filter(exchange=exchange, symbol=symbol).save(price=price, trade_type=trade_type,
+                                                                    rating=rating, risk=risk)
 
     for key, value in data_ti:
         if Prediction.objects.filter(date=key, trade=trade).exists():
