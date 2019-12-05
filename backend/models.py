@@ -236,7 +236,8 @@ class Enforce(models.Model):
 
 # TODO: not sure this works
 class Manage(models.Model):
-    employee = models.ForeignKey('self', on_delete=models.CASCADE)
+    employee = models.ForeignKey('employee', on_delete=models.CASCADE)
+    supervisor = models.ForeignKey('employee', on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.employee)
