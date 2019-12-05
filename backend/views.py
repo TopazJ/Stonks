@@ -102,11 +102,10 @@ def see_account(request):
 
 def owns (request):
     data = json.loads(request.body)
-    owned = get_owns(data['username'], data['account_no'])
+    owned = get_owns(data.user.get.username(), data['account_no'])
     return successfulMessage(OwnsSerializer(owned))
 
 
 def get_accounts (request):
-    data = json.loads(request.body)
-    accounts = get_user_account(data['username'])
+    accounts = get_user_accounts(request.user.get_username())
     return successfulMessage(AccountSerializer(accounts))
