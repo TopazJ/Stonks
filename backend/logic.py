@@ -298,9 +298,10 @@ def create_account(username):
 
 
 def add_money_to_account(username, account_no, amount):
-    account = Account.objects.filter(client=User.objects.filter(username=username).client, account_no=account_no)
+    account = Account.objects.get(client=User.objects.get(username=username).client, account_no=account_no)
     if account is not None and amount > 0:
-        account.update(balance=account.balance + amount)
+        account.balance = account.balance + amount
+        account.save()
         return True
     else:
         return None
