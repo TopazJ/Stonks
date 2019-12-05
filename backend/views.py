@@ -125,4 +125,3 @@ def save_predict (request):
     data = json.loads(request.body)
     save_prediction(get_stock_exponential_moving_average(data['ticker']), data['ticker'])
     return successfulMessage(None)
-
