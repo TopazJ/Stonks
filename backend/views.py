@@ -98,30 +98,19 @@ def add_money(request):
 def see_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        accounts = get_user_accounts(username=data['username'])
-        return successfulMessage(None)
+        return successfulMessage(None) #AccountSerializer(get_user_accounts(username=data['username'])))
 
 
 def owns(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        trades = get_owns(request.user.get_username(), data['account_no'])
-        trade_list = serializers.serialize('json', trades)
-        return successfulMessage({'data': trade_list})
+    data = json.loads(request.body)
+    trades = get_owns(data['username'], data['account_no'])
+    trade_list = serializers.serialize('json', trades)
+    return successfulMessage({'data': trade_list})
 
 
 def get_accounts(request):
-    if request.method == 'POST':
-        accounts = get_user_accounts(request.user.get_username())
-        account_list = serializers.serialize('json', accounts)
-        return successfulMessage({'data': account_list})
-
-
-def get_incomplete_transactions (request):
-    if request.method == 'POST':
-        transactions = get_all_incomplete_transactions()
-        if transactions.exists():
-          transaction_list = serializers.serialize('json',transactions)
-          return successfulMessage({'data': transaction_list})
-        else:
-            return errorMessage("Unable to get incomplete transactions")
+    # data = json.loads(request.body)
+    accounts = get_user_accounts(request.user.get_username())
+    account_list = serializers.serialize('json', accounts)
+    # data['username'])
+    return successfulMessage({'data': account_list})
