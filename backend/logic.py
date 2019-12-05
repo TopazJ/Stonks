@@ -56,9 +56,10 @@ def buy_trade_transaction_creation(username, symbol, quantity):
         return None
 
 
-def transaction_confirmation(transaction, market_maker_username):
+def transaction_confirmation(transaction_id, market_maker_username):
+    transaction = Transaction.objects.get(pk=transaction_id)
     if isinstance(transaction, Transaction):
-        market_maker = User.objects.filter(username=market_maker_username).market_maker
+        market_maker = User.objects.get(username=market_maker_username).market_maker
         if market_maker is not None:
             transaction.market_maker = market_maker
             transaction.update(market_maker=market_maker, complete=True)
@@ -81,7 +82,7 @@ def transaction_confirmation(transaction, market_maker_username):
 
 def is_eligible_to_sell_stock(username, account, stock, quantity):
     if isinstance(stock, Trade):
-        accounts = Account.objects.filter(client=User.objects.filter(username=username).client)
+        accounts = Account.objects.filter(client=User.objects.get(username=username).client)
         if len(accounts) > 0:
             for account in accounts:
                 owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
