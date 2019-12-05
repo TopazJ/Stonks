@@ -17,5 +17,7 @@ urlpatterns = [
     path('add-money/', views.add_money),
     path('create-account/', views.create_account),
     path('owns/', views.owns),
-    path('get-accounts/', views.get_accounts)
+    path('get-accounts/', views.get_accounts),
+    path('get-prediction-history/', views.get_predictions),
+    path('save-predictions/', views.save_predict)
 ]

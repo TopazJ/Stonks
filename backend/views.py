@@ -15,7 +15,7 @@ from backend.stock_access import *
 def buy_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        transaction = buy_trade_transaction_creation(username=data['username'], stock=data['stock'],
+        transaction = buy_trade_transaction_creation(request.user.get_username(), stock=data['stock'],
                                                      quantity=data['quantity'])
         if transaction is not None:
             response_data = serializers.serialize('json', transaction)
@@ -27,7 +27,7 @@ def buy_trade(request):
 def sell_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        transaction = sell_trade_transaction_creation(username=data['username'], stock=data['stock'],
+        transaction = sell_trade_transaction_creation(request.user.get_username(), stock=data['stock'],
                                                       quantity=data['quantity'])
         if transaction is not None:
             response_data = serializers.serialize('json', transaction)
@@ -87,7 +87,7 @@ def create_account(request):
 def add_money(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = add_money_to_account(data['username'], data['account_no'], data['amount'])
+        result = add_money_to_account(request.user.get_username(), data['account_no'], data['amount'])
         if result is None:
             return errorMessage("Unable to add money (can't make it rain :( )")
         else:
@@ -97,12 +97,12 @@ def add_money(request):
 def see_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        return successfulMessage(None) #AccountSerializer(get_user_accounts(username=data['username'])))
+        return successfulMessage(None)
 
 
 def owns(request):
     data = json.loads(request.body)
-    trades = get_owns(data['username'], data['account_no'])
+    trades = get_owns(request.user.get_username(), data['account_no'])
     trade_list = serializers.serialize('json', trades)
     return successfulMessage({'data': trade_list})
 
@@ -113,3 +113,16 @@ def get_accounts(request):
     account_list = serializers.serialize('json', accounts)
     # data['username'])
     return successfulMessage({'data': account_list})
+
+def get_predictions (request):
+    data = json.loads(request.body)
+    predictions = get_prediction_history(trade = data['stock'])
+    predictions_list = serializers.serialize('json', predictions)
+    return successfulMessage({'data': predictions_list})
+
+
+def save_predict (request):
+    data = json.loads(request.body)
+    save_prediction(get_stock_exponential_moving_average(data['ticker']), data['ticker'])
+    return successfulMessage(None)
+
