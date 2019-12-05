@@ -51,12 +51,8 @@ def buy_trade_transaction_creation(username, stock, quantity):
                 transaction = Transaction(market_maker=None, client=eligible_account.client, account=eligible_account,
                                           trade=stock, quantity=quantity, type=Transaction.BUY).save()
                 return transaction
-            else:
-                errorMessage("FUNDS TOO LOW - CAN PURCHASE WITH POOL")
-        else:
-            errorMessage("FUNDS TOO LOW - CANNOT PURCHASE")
     else:
-        errorMessage("FATAL ERROR")
+        return None
 
 
 def transaction_confirmation(transaction, market_maker_username):
@@ -73,15 +69,13 @@ def transaction_confirmation(transaction, market_maker_username):
                     owns.update(quantity=owns.quantity + transaction.quantity)
                 elif transaction.type is transaction.SELL:
                     owns.update(quantity=owns.quantity - transaction.quantity)
+                return True
             elif len(owns) is 0 and transaction.type is transaction.BUY:
                 Owns(client=transaction.client, account=transaction.account, trade=transaction.trade,
                      quantity=transaction.quantity).save()
-            else:
-                errorMessage("DATABASE DUPLICATE")
-        else:
-            errorMessage("NOT A VALID MARKET MAKER")
+                return True
     else:
-        errorMessage("FATAL ERROR")
+        return None
 
 
 def is_eligible_to_sell_stock(username, account, stock, quantity):
@@ -90,12 +84,8 @@ def is_eligible_to_sell_stock(username, account, stock, quantity):
         if len(accounts) > 0:
             for account in accounts:
                 owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
-                if owns.quantity > quantity:
+                if owns is not None and owns.quantity > quantity:
                     return account, owns
-        else:
-            errorMessage("NO ACCOUNT")
-    else:
-        errorMessage("FATAL ERROR")
     return None, None
 
 
@@ -107,7 +97,7 @@ def sell_trade_transaction_creation(username, stock, quantity):
                                       trade=stock, quantity=quantity, type=Transaction.SELL).save()
             return transaction
     else:
-        errorMessage("FATAL ERROR")
+        return None
 
 
 # POOL
@@ -127,20 +117,17 @@ def buy_into_pool(username, stock, quantity, fraction):
         if can_purchase:
             if eligible_account is not None:
                 return Pool(market_maker=None, client=eligible_account.client, account=eligible_account,
-                            trade=stock, quantity=quantity, type=Transaction.BUY, fraction=fraction)
-            else:
-                errorMessage("FUNDS TOO LOW - CAN PURCHASE WITH POOL")
-        else:
-            errorMessage("FUNDS TOO LOW - CANNOT PURCHASE")
+                            trade=stock, quantity=quantity, type=Transaction.BUY, fraction=fraction).save()
     else:
-        errorMessage("FATAL ERROR")
+        return None
 
 
 def pool_confirmation(pool, market_maker_username):
-    if isinstance(pool, Transaction):
+    if isinstance(pool, Pool):
         market_maker = User.objects.filter(username=market_maker_username).marketMaker
         if market_maker is not None:
             pool.market_maker = market_maker
+            pool.complete = True
             pool.save()
 
             owns = Owns.objects.filter(client=pool.client, account=pool.account, trade=pool.trade)
@@ -149,15 +136,13 @@ def pool_confirmation(pool, market_maker_username):
                     owns.update(quantity=owns.quantity + pool.quantity)
                 elif pool.type is pool.SELL:
                     owns.update(quantity=owns.quantity - pool.quantity)
+                return True
             elif len(owns) is 0 and pool.type is pool.BUY:
                 Owns(client=pool.client, account=pool.account, trade=pool.trade,
                      quantity=pool.quantity).save()
-            else:
-                errorMessage("DATABASE DUPLICATE")
-        else:
-            errorMessage("NOT A VALID MARKET MAKER")
+                return True
     else:
-        errorMessage("FATAL ERROR")
+        return None
 
 
 """ check authenticatipn before every function
@@ -190,38 +175,46 @@ def get_transactions_by_account(username, account_no):
 def create_support_ticket(username):
     client = User.objects.get(username=username).client
     support = Support.objects.all().order_by('?')[:1]
-    Help(client=client, support=support).save()
+    if client is not None and support is not None:
+        Help(client=client, support=support).save()
+        return True
+    else:
+        return None
 
 
 def access_employee_data(employee_id):
-    employee = Employee.objects.filter(employeeID=employee_id)
-    if employee is None:
-        return errorMessage("No such Employee")
-    else:
-        return employee
+    return Employee.objects.filter(employeeID=employee_id)
 
 
 def review_account(account_no, employee_id, account_username):
     account = Account.objects.get(client=User.objects.get(username=account_username).client, account_no=account_no)
-    Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
-    return account
+    if account is not None:
+        Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
+        return account
+    else:
+        return None
 
 
 def enforce_rules(account_no, employee_id, account_username):
     account = Account.objects.get(user=User.objects.get(username=account_username), account_no=account_no)
-    Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
-    return account
+    if account is not None:
+        Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
+        return account
+    else:
+        return None
 
 
 def solve_support_ticket(help_ticket_no):
     Help.objects.get(ticket_no=help_ticket_no).delete()
+    return True
 
 
 def solve_support_ticket(help_ob):
     if isinstance(help_ob, Help):
         help_ob.delete()
+        return True
     else:
-        errorMessage("NO SUCH OBJECT")
+        return None
 
 
 def get_all_tickets_by_support(employee_id):
@@ -238,7 +231,6 @@ def save_prediction(data_ti, ticker):
     risk = Trade.HIGH_RISK
     trade = Trade(exchange=exchange, symbol=symbol, company_name=company_name, price=price, trade_type=trade_type,
                   rating=rating, risk=risk)
-
     if Trade.objects.filter(exchange=exchange, symbol=symbol) is None:
         trade.save()
     else:
@@ -248,6 +240,7 @@ def save_prediction(data_ti, ticker):
     for key, value in data_ti:
         if Prediction.objects.filter(date=key, trade=trade) is None:
             Prediction(trade=trade, prediction=value, date=key).save()
+    return True
 
 
 def get_prediction_history(stock):
@@ -257,9 +250,9 @@ def get_prediction_history(stock):
 def register_employee(username, password, employee_id, ssn, salary):
     if User.objects.get(username=username).employee is None:
         Employee(user=User(username=username, password=password), employeeID=employee_id, SSN=ssn, salary=salary).save()
-        return successfulMessage({})
+        return True
     else:
-        return errorMessage("ID ALREADY USED")
+        return None
 
 
 def register_client(username, password):
@@ -267,34 +260,36 @@ def register_client(username, password):
     if client is None:
         user = User(username=username, password=password).save()
         Client(user=user).save()
-        return successfulMessage({})
-    elif client.is_banned is True:
-        return errorMessage("BANNED")
+        if create_account(username):
+            return True
     else:
-        return errorMessage("DUPLICATE")
+        return None
 
 
 def get_owns(username, account_no):
-    owns = Owns.objects.filter(client=User.objects.get(username=username).client,
+    return Owns.objects.filter(client=User.objects.get(username=username).client,
                                account=Account.objects.filter(account_no=account_no))
-    return owns
 
 
 def create_account(username):
     client = User.objects.get(username=username).client
     if client is not None:
         accounts = Account.objects.filter(client=client)
-        account_no = len(accounts)+1
+        account_no = len(accounts) + 1
         Account(client=client, account_no=account_no).save()
-        return successfulMessage({})
+        return True
     else:
-        return errorMessage("NO SUCH CLIENT")
+        return None
 
 
 def add_money_to_account(username, account_no, amount):
     account = Account.objects.get(client=User.objects.get(username=username).client, account_no=account_no)
     if account is not None and amount > 0:
-        account.update(balance=account.balance+amount)
-        return successfulMessage({})
+        account.update(balance=account.balance + amount)
+        return True
     else:
-        return errorMessage("Invalid account or price")
+        return None
+
+
+def get_all_incomplete_transactions():
+    return Transaction.objects.filter(complete=False)

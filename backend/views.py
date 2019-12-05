@@ -72,6 +72,7 @@ def daily_stock(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         return successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
+        return successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
 
 
 def create_account (request):
@@ -157,37 +158,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     serializer_class = AccountSerializer
 
 
-class OwnsViewSet(viewsets.ModelViewSet):
-    queryset = Owns.objects.all()
-    serializer_class = OwnsSerializer
-
-
-class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
-
-
-class PoolViewSet(viewsets.ModelViewSet):
-    queryset = Pool.objects.all()
-    serializer_class = PoolSerializer
-
-
-class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-
-
-class HelpViewSet(viewsets.ModelViewSet):
-    queryset = Help.objects.all()
-    serializer_class = HelpSerializer
-
-
-class EnforceViewSet(viewsets.ModelViewSet):
-    queryset = Enforce.objects.all()
-    serializer_class = EnforceSerializer
-
-
-class ManageViewSet(viewsets.ModelViewSet):
-    queryset = Manage.objects.all()
-    serializer_class = ManageSerializer
-"""
+def see_account(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        get_user_accounts(username=data['username'])
