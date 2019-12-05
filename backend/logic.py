@@ -296,9 +296,9 @@ def get_owns(username, account_no):
     own_info = {}
     for owl in own:
         if owl.trade not in own_info:
-            own_info[owl.trade] = owl.quantity
+            own_info[model_to_dict(owl.trade)] = owl.quantity
         else:
-            own_info[owl.trade] = own_info[owl.trade] + owl.quantity
+            own_info[model_to_dict(owl.trade)] = own_info[owl.trade] + owl.quantity
     return own
 
 
