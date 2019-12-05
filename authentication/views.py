@@ -11,17 +11,18 @@ def login_user(request):
         data = json.loads(request.body)
         user = authenticate(username=data['username'], password=data['password'])
         if user is not None:
-            response_data = {'message': 'Success!'}
+            response_data = {'status': 'success'}
             if user.is_active:
                 login(request, user)
         else:
-            response_data = {'message': 'Not Logged in!'}
+            response_data = {'status': 'Not Logged in!'}
 
         return JsonResponse(response_data)
 
 
 def logout_user(request):
     logout(request)
+    return JsonResponse({'status':'success'})
 
 
 def status(request):
