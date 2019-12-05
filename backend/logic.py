@@ -274,9 +274,10 @@ def register_client(username, password):
 
 def get_owns(username, account_no):
     client = User.objects.get(username=username).client
-    owns = Owns.objects.filter(client=client,
-                               account=Account.objects.filter(account_no=account_no))
-    return Trade.objects.filter(symbol=owns.trade.symbol)
+    account = Account.objects.get(account_no=account_no, client=client)
+    own = Owns.objects.get(client=client,
+                           account=account)
+    return Trade.objects.filter(symbol=own.trade.symbol)
 
 
 def create_account(username):
