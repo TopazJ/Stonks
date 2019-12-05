@@ -15,7 +15,7 @@ from backend.stock_access import *
 def buy_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        transaction = buy_trade_transaction_creation(username=data['username'], stock=data['stock'],
+        transaction = buy_trade_transaction_creation(username=request.user.get_username(), symbol=data['symbol'],
                                                      quantity=data['quantity'])
         if transaction is not None:
             response_data = serializers.serialize('json', transaction)
@@ -27,7 +27,7 @@ def buy_trade(request):
 def sell_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        transaction = sell_trade_transaction_creation(username=data['username'], stock=data['stock'],
+        transaction = sell_trade_transaction_creation(username=request.user.get_username(), symbol=data['symbol'],
                                                       quantity=data['quantity'])
         if transaction is not None:
             response_data = serializers.serialize('json', transaction)
@@ -39,7 +39,7 @@ def sell_trade(request):
 def complete_transaction(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
+        result = transaction_confirmation(transaction=data['transaction'], market_maker_username=request.user.get_username())
         if result is None:
             return errorMessage('Unable to complete transaction')
         else:
@@ -50,7 +50,7 @@ def buy_pool(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         pool = buy_into_pool(
-            username=data['username'], stock=data['stock'], quantity=data['quantity'], fraction=data['fraction'])
+            username=request.user.get_username(), symbol=data['symbol'], quantity=data['quantity'], fraction=data['fraction'])
         if pool is not None:
             response_data = serializers.serialize('json', pool)
             return successfulMessage(response_data)
@@ -77,7 +77,7 @@ def daily_stock(request):
 def create_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = register_client(data['username'], data['password'])
+        result = register_client(request.user.get_username(), data['password'])
         if result is None:
             return errorMessage("Unable to create account")
         else:
@@ -87,7 +87,7 @@ def create_account(request):
 def add_money(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = add_money_to_account(data['username'], data['account_no'], data['amount'])
+        result = add_money_to_account(request.user.get_username(), data['account_no'], data['amount'])
         if result is None:
             return errorMessage("Unable to add money (can't make it rain :( )")
         else:
@@ -97,16 +97,15 @@ def add_money(request):
 def see_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        accounts = get_user_accounts(username=data['username'])
+        accounts = get_user_accounts(request.user.get_username())
         return successfulMessage(None) #AccountSerializer(get_user_accounts(username=data['username'])))
 
 
 def owns(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        trades = get_owns(data['username'], data['account_no'])
-        trade_list = serializers.serialize('json', trades)
-        return successfulMessage({'data': trade_list})
+        owns = get_owns(username=request.user.get_username(), account_no=data['account_no'])
+        return successfulMessage({'data': owns})
 
 
 def get_accounts(request):

@@ -90,7 +90,8 @@ def is_eligible_to_sell_stock(username, account, stock, quantity):
     return None, None
 
 
-def sell_trade_transaction_creation(username, stock, quantity):
+def sell_trade_transaction_creation(username, symbol, quantity):
+    stock = Trade.objects.filter(symbol=symbol, exchange='TSX')
     if isinstance(stock, Trade):
         account, owns = is_eligible_to_sell_stock(username, stock, quantity)
         if account is not None and owns is not None:
@@ -104,7 +105,7 @@ def sell_trade_transaction_creation(username, stock, quantity):
 # POOL
 
 
-def buy_into_pool(username, stock, quantity, fraction):
+def buy_into_pool(username, symbol, quantity, fraction):
     """
     user buys into pool, if valid, returns pool object that can be then confirmed by a marketmaker later
     :param username:
@@ -113,6 +114,7 @@ def buy_into_pool(username, stock, quantity, fraction):
     :param fraction:
     :return:
     """
+    stock = Trade.objects.filter(symbol=symbol, exchange='TSX')
     if isinstance(stock, Trade):
         eligible_account, can_purchase = check_balance_for_buy_transaction(username, stock.price * quantity * fraction)
         if can_purchase:
@@ -275,8 +277,14 @@ def register_client(username, password):
 def get_owns(username, account_no):
     client = User.objects.get(username=username).client
     account = Account.objects.get(account_no=account_no, client=client)
-    own = Owns.objects.get(client=client, account=account)
-    return Trade.objects.filter(symbol=own.trade.symbol)
+    own = Owns.objects.filter(client=client, account=account)
+    own_info = {}
+    for owl in own:
+        if owl.trade not in own_info:
+            own_info[owl.trade] = owl.quantity
+        else:
+            own_info[owl.trade] = own_info[owl.trade] + owl.quantity
+    return own
 
 
 def create_account(username):
