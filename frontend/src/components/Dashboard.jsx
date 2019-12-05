@@ -29,6 +29,12 @@ class Dashboard extends Component {
     };
 
     handleClickStonks = () =>{
+        fetch('http://127.0.0.1:8000/api/get-owns/', {
+            method: 'GET',
+            body: {account:this.state.accountNums[0]}
+        }).then(res => res.json()).then(data => {
+            console.log(data);
+        }).catch(err=> console.error("Error", err));
 
     };
 
