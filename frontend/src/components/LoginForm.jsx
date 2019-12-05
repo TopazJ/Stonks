@@ -24,9 +24,6 @@ class LoginForm extends React.Component {
     handleSubmit = (event) => {
         event.preventDefault();
         const values = this.state.form;
-        console.log("Submit!");
-        console.log(event.target);
-        console.log(JSON.stringify(values));
         fetch('http://127.0.0.1:8000/auth/login/', {
             method: 'POST',
             body: JSON.stringify(values),
@@ -35,7 +32,10 @@ class LoginForm extends React.Component {
                 'X-CSRFToken':event.target.csrfmiddlewaretoken.value
             }
         }).then(res => res.json())
-        .then(data => console.log(data))
+        .then(data => {
+            console.log(data);
+            this.props.props.login()}
+        )
         .catch(err => console.error("Error:", err));
     };
 
@@ -55,7 +55,7 @@ class LoginForm extends React.Component {
                 <form className="p-4" onSubmit={this.handleSubmit}>
                     <CSRFToken />
                     <div className="form-group">
-                        <label htmlFor="username">Email address</label>
+                        <label htmlFor="username">Username</label>
                         <input
                             type="text"
                             className="form-control"
