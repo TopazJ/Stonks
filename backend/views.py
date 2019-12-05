@@ -61,7 +61,7 @@ def buy_pool(request):
 def complete_pool(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = pool_confirmation(pool=data['pool'], market_maker_username=data['username'])
+        result = pool_confirmation(date = data ['date'], client = data ['client'], trade = data['trade'], market_maker_username=data['username'])
         if result is None:
             return errorMessage("Unable to complete pool")
         else:
@@ -109,9 +109,8 @@ def owns(request):
 
 
 def get_accounts(request):
-    if request.method == 'POST':
-        # data = json.loads(request.body)
-        accounts = get_user_accounts(request.user.get_username())
-        account_list = serializers.serialize('json', accounts)
-        # data['username'])
-        return successfulMessage({'data': account_list})
+    # data = json.loads(request.body)
+    accounts = get_user_accounts(request.user.get_username())
+    account_list = serializers.serialize('json', accounts)
+    # data['username'])
+    return successfulMessage({'data': account_list})
