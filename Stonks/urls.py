@@ -14,13 +14,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.conf.urls import url, include
 from rest_framework import routers
 from backend import views
 
 # Wire up our API using automatic URL routing.
 router = routers.DefaultRouter()
+"""
 router.register(r'm_employee', views.EmployeeViewSet)
 router.register(r'm_emp_address', views.EmpAddressViewSet)
 router.register(r'm_emp_name', views.EmpNameViewSet)
@@ -40,12 +41,12 @@ router.register(r'm_review', views.ReviewViewSet)
 router.register(r'm_help', views.HelpViewSet)
 router.register(r'm_enforce', views.EnforceViewSet)
 router.register(r'm_manage', views.ManageViewSet)
-
+"""
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('auth/', include('authentication.urls')),
-    path('', include('frontend.urls')),
+    re_path(r'^(?:.*)/?$', include('frontend.urls')),
 ]

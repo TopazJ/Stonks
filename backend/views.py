@@ -1,21 +1,17 @@
-from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 
 from backend.logic import *
 from backend.models import *
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from backend.serializers import *
 import json
 from django.http import JsonResponse
 from backend.stock_access import *
-from django.contrib.auth.decorators import permission_required
 
 
 # Create your views here.
 
 
-
-@permission_required('Client')
 def buy_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -27,7 +23,7 @@ def buy_trade(request):
         else:
             return errorMessage("Unable to create transaction")
 
-@permission_required('Client')
+
 def sell_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -39,13 +35,13 @@ def sell_trade(request):
         else:
             return errorMessage("Unable to create transaction")
 
-@permission_required('MarketMaker')
+
 def complete_transaction(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
 
-@permission_required('Client')
+
 def buy_pool(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -57,7 +53,7 @@ def buy_pool(request):
         else:
             return errorMessage("Unable to create transaction")
 
-@permission_required('MarketMaker')
+
 def complete_pool(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -72,7 +68,7 @@ def daily_stock(request):
 
 # ViewSets go here (access to models through API
 
-
+"""
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -166,4 +162,4 @@ class EnforceViewSet(viewsets.ModelViewSet):
 class ManageViewSet(viewsets.ModelViewSet):
     queryset = Manage.objects.all()
     serializer_class = ManageSerializer
-
+"""
