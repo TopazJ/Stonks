@@ -1,12 +1,14 @@
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 
 from backend.logic import *
 from backend.models import *
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from backend.serializers import *
 import json
 from django.http import JsonResponse
 from backend.stock_access import *
+from django.contrib.auth.decorators import permission_required
 
 # Create your views here.
 
@@ -19,7 +21,7 @@ def errorMessage(error_message):
 def successfulMessage(json_data):
     JsonResponse({**{'status': 'success'}, **json_data})
 
-
+@permission_required('MarketMaker')
 def buy_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -31,7 +33,7 @@ def buy_trade(request):
         else:
             return errorMessage("Unable to create transaction")
 
-
+@permission_required('MarketMaker')
 def sell_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
