@@ -106,7 +106,8 @@ def owns (request):
     return successfulMessage(OwnsSerializer(owned))
 
 
-def get_accounts (request):
-    data = json.loads(request.body)
-    accounts = get_user_account(data['username'])
+def get_accounts(request):
+    # data = json.loads(request.body)
+    accounts = get_user_accounts(request.user.get_username())
+    # data['username'])
     return successfulMessage(AccountSerializer(accounts))

@@ -161,8 +161,9 @@ def login(username, password):
 
 
 def get_user_accounts(username):
-    return Account.objects.filter(client=User.objects.get(username).client)
-
+    client=User.objects.get(username)
+    accoutns = Account.objects.filter(client=client)
+    return accoutns
 
 def get_user_account(username, account_no):
     return Account.objects.filter(client=User.objects.get(username).client).get(account_no=account_no)
