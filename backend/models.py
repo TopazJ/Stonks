@@ -128,7 +128,7 @@ class Client(models.Model):
 class Account(models.Model):
     client = models.ForeignKey('Client', on_delete=models.CASCADE)
     account_no = models.IntegerField()
-    balance = models.DecimalField(max_digits=12, decimal_places=2)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     is_valid = models.BooleanField(default=False)
 
     class Meta:

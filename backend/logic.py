@@ -1,9 +1,6 @@
 from django.http import JsonResponse
 
 from backend.models import *
-
-# TODO: Notify all users when POOL is complete
-# TODO: Notify user when transaction is complete
 from backend.stock_access import get_stock_price_now
 
 
@@ -16,7 +13,6 @@ def successfulMessage(json_data):
 
 
 # Buy Sell
-from backend.views import errorMessage
 
 
 def check_balance_for_buy_transaction(username, purchase_amount):
@@ -52,7 +48,7 @@ def buy_trade_transaction_creation(username, stock, quantity):
         if can_purchase:
             if eligible_account is not None:
                 transaction = Transaction(market_maker=None, client=eligible_account.client, account=eligible_account,
-                                   trade=stock, quantity=quantity, type=Transaction.BUY).save()
+                                          trade=stock, quantity=quantity, type=Transaction.BUY).save()
                 return transaction
             else:
                 errorMessage("FUNDS TOO LOW - CAN PURCHASE WITH POOL")
@@ -89,7 +85,7 @@ def transaction_confirmation(transaction, market_maker_username):
 
 def is_eligible_to_sell_stock(username, account, stock, quantity):
     if isinstance(stock, Trade):
-        accounts = Account.objects.filter(client=User.objects.filter(username=username))
+        accounts = Account.objects.filter(client=User.objects.filter(username=username).client)
         if len(accounts) > 0:
             for account in accounts:
                 owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
@@ -258,27 +254,32 @@ def get_prediction_history(stock):
 
 
 def register_employee(username, password, employee_id, ssn, salary):
-    if User.objects.get(username=username) is None:
-        Employee(user=User(username=username, password=password), employeeID=employee_id, SSN=ssn, salary=salary)
+    if User.objects.get(username=username).employee is None:
+        Employee(user=User(username=username, password=password), employeeID=employee_id, SSN=ssn, salary=salary).save()
+        return successfulMessage({})
     else:
-        errorMessage("ID ALREADY USED")
+        return errorMessage("ID ALREADY USED")
 
 
 def register_client(username, password):
     client = User.objects.get(username=username).client
     if client is None:
-        Client(username=username, password=password, is_banned=False)
+        user = User(username=username, password=password).save()
+        Client(user=user).save()
+        return successfulMessage({})
     elif client.is_banned is True:
-        errorMessage("BANNED")
+        return errorMessage("BANNED")
     else:
-        errorMessage("DUPLICATE")
+        return errorMessage("DUPLICATE")
+
 
 def get_owns(username, account_no):
     owns = Owns.objects.filter(client=User.objects.get(username=username).client,
                                account=Account.objects.filter(account_no=account_no))
     return owns
 
-def get_owns(username):
+
+def create_account(username):
     client = User.objects.get(username=username).client
     if client is not None:
         accounts = Account.objects.filter(client=client)

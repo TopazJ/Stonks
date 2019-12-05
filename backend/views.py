@@ -12,9 +12,6 @@ from backend.stock_access import *
 # Create your views here.
 
 
-
-
-
 def buy_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
