@@ -203,23 +203,20 @@ def review_account(account_no, employee_id, account_username):
         return None
 
 
-def enforce_rules(account_no, employee_id, account_username):
-    account = Account.objects.filter(user=User.objects.filter(username=account_username), account_no=account_no)
-    if account is not None:
-        Review(account=account, client=account.client, support=Support.objects.filter(employeeID=employee_id)).save()
-        return account
+def enforce_rules(admin_username, account_username):
+    client = User.objects.get(username=account_username).Client
+    admin = User.objects.get(username=admin_username).admin
+    if client is not None and admin is not None:
+        Enforce(admin=admin, client=client).save()
+        return True
     else:
         return None
 
 
 def solve_support_ticket(help_ticket_no):
-    Help.objects.filter(ticket_no=help_ticket_no).delete()
-    return True
-
-
-def solve_support_ticket(help_ob):
-    if isinstance(help_ob, Help):
-        help_ob.delete()
+    helped = Help.objects.filter(ticket_no=help_ticket_no).delete()
+    if helped.exists():
+        helped.delete()
         return True
     else:
         return None
