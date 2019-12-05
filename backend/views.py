@@ -74,10 +74,10 @@ def daily_stock(request):
         return successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
 
 
-def create_account (request):
+def create_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = register_client(data['username'],data['password'])
+        result = register_client(data['username'], data['password'])
         if result is None:
             return errorMessage("Unable to create account")
         else:

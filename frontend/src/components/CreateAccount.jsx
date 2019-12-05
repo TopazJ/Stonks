@@ -11,6 +11,7 @@ class CreateAccount extends Component{
     handleSubmit =(event)=>{
          event.preventDefault();
         const values = this.state.form;
+        console.log(values);
         fetch('http://127.0.0.1:8000/api/create-account/', {
             method: 'POST',
             body: JSON.stringify(values),
@@ -20,6 +21,7 @@ class CreateAccount extends Component{
             }
         }).then(res => res.json())
         .then(data => {
+            console.log(data);
             if (data.status!=='success'){
                 alert(data.message);
             }
@@ -27,7 +29,10 @@ class CreateAccount extends Component{
                 this.setState({created:true});
             }
         })
-        .catch(err => alert("Error communicating with server."));
+        .catch(err => {
+            alert("Error communicating with server.");
+            console.log(err);
+        });
     };
 
 
@@ -46,7 +51,7 @@ class CreateAccount extends Component{
 
     checkRedirect(){
         if(this.state.created===true) {
-            return <Redirect to={'/'}/>;
+            return <Redirect to={'/login'}/>;
         }
     }
 
