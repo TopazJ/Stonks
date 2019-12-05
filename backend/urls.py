@@ -14,8 +14,6 @@ urlpatterns = [
     path('buy-pool/', views.buy_pool),
     path('complete-pool/', views.complete_pool),
     path('daily-stock/', views.daily_stock),
-    path('add-money/', views.add_money),
-    path('create-account/', views.create_account),
     path('owns/', views.owns),
     path('get-accounts/', views.get_accounts)
 ]

@@ -125,8 +125,10 @@ def buy_into_pool(username, symbol, quantity, fraction):
         return None
 
 
-def pool_confirmation(pool, market_maker_username):
+def pool_confirmation(date, client, trade, market_maker_username):
+    pool = Pool.objects.filter(date=date, client=client, trade=trade)
     if isinstance(pool, Pool):
+
         market_maker = User.objects.filter(username=market_maker_username).marketMaker
         if market_maker is not None:
             pool.market_maker = market_maker
@@ -201,23 +203,20 @@ def review_account(account_no, employee_id, account_username):
         return None
 
 
-def enforce_rules(account_no, employee_id, account_username):
-    account = Account.objects.filter(user=User.objects.filter(username=account_username), account_no=account_no)
-    if account is not None:
-        Review(account=account, client=account.client, support=Support.objects.filter(employeeID=employee_id)).save()
-        return account
+def enforce_rules(admin_username, account_username):
+    client = User.objects.get(username=account_username).Client
+    admin = User.objects.get(username=admin_username).admin
+    if client is not None and admin is not None:
+        Enforce(admin=admin, client=client).save()
+        return True
     else:
         return None
 
 
 def solve_support_ticket(help_ticket_no):
-    Help.objects.filter(ticket_no=help_ticket_no).delete()
-    return True
-
-
-def solve_support_ticket(help_ob):
-    if isinstance(help_ob, Help):
-        help_ob.delete()
+    helped = Help.objects.filter(ticket_no=help_ticket_no).delete()
+    if helped.exists():
+        helped.delete()
         return True
     else:
         return None
