@@ -12,9 +12,7 @@ class Logout extends React.Component{
     }
 
     renderLogout(){
-        if (this.props.props.user === 'anon'){
-            return <Redirect to={'/'}/>;
-        }
+        return <Redirect to={'/'}/>;
     }
 
 }

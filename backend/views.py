@@ -18,7 +18,7 @@ def buy_trade(request):
         transaction = buy_trade_transaction_creation(username=data['username'], stock=data['stock'],
                                                      quantity=data['quantity'])
         if transaction is not None:
-            response_data = TransactionSerializer(transaction)
+            response_data = None #TransactionSerializer(transaction)
             return successfulMessage(response_data)
         else:
             return errorMessage("Unable to create transaction")
@@ -30,7 +30,7 @@ def sell_trade(request):
         transaction = sell_trade_transaction_creation(username=data['username'], stock=data['stock'],
                                                       quantity=data['quantity'])
         if transaction is not None:
-            response_data = TransactionSerializer(transaction)
+            response_data = None #TransactionSerializer(transaction)
             return successfulMessage(response_data)
         else:
             return errorMessage("Unable to create transaction")
@@ -52,7 +52,7 @@ def buy_pool(request):
         pool = buy_into_pool(
             username=data['username'], stock=data['stock'], quantity=data['quantity'], fraction=data['fraction'])
         if pool is not None:
-            response_data = PoolSerializer(pool)
+            response_data = None #PoolSerializer(pool)
             return successfulMessage(response_data)
         else:
             return errorMessage("Unable to create transaction")
@@ -77,7 +77,7 @@ def daily_stock(request):
 def create_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = register_client(data['username'],data['password'])
+        result = register_client(data['username'], data['password'])
         if result is None:
             return errorMessage("Unable to create account")
         else:
@@ -102,10 +102,13 @@ def see_account(request):
 
 def owns (request):
     data = json.loads(request.body)
-    owned = get_owns(data.user.get.username(), data['account_no'])
-    return successfulMessage(OwnsSerializer(owned))
+    owned = get_owns(data['username'], data['account_no'])
+    return successfulMessage(None) #OwnsSerializer(owned))
 
 
-def get_accounts (request):
+def get_accounts(request):
+    # data = json.loads(request.body)
     accounts = get_user_accounts(request.user.get_username())
-    return successfulMessage(AccountSerializer(accounts))
+    account_list = serializers.serialize('json', accounts)
+    # data['username'])
+    return successfulMessage({'data': account_list})
