@@ -33,21 +33,13 @@ class LoginForm extends React.Component {
             }
         }).then(res => res.json())
         .then(data => {
-            console.log(data);
-            this.props.props.login()}
+            if (data.status==='success'){
+            this.props.props.login()}}
         )
         .catch(err => console.error("Error:", err));
     };
 
-    handleClick = (event) =>{
-        console.log("yeet");
-        fetch('http://127.0.0.1:8000/auth/status/', {
-            method: 'GET'
-        }).then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error("Error:", err));
 
-    };
 
     render() {
         return (
@@ -82,9 +74,6 @@ class LoginForm extends React.Component {
                         Sign in
                     </button>
                 </form>
-                <button type="submit" onClick={this.handleClick}>
-                    Test
-                </button>
             </React.Fragment>
         );
     }

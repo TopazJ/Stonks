@@ -11,7 +11,7 @@ def login_user(request):
         data = json.loads(request.body)
         user = authenticate(username=data['username'], password=data['password'])
         if user is not None:
-            response_data = {'status': 'Success!'}
+            response_data = {'status': 'success'}
             if user.is_active:
                 login(request, user)
         else:

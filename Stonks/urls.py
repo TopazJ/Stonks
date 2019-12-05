@@ -47,5 +47,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('auth/', include('authentication.urls')),
-    re_path(r'^$', include('frontend.urls')),
+    re_path(r'^(?:.*)/?$', include('frontend.urls')),
 ]

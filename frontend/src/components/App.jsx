@@ -37,7 +37,6 @@ class App extends Component {
             method: 'GET',
         }).then(res => res.json())
         .then(data => {
-            console.log(data.status);
             if (data.status==='user'){
                 this.login();
             }
@@ -61,7 +60,6 @@ class App extends Component {
             method:"GET"
         }).then(res => res.json())
             .then(data => {
-                console.log(data);
                 if (data.status === 'success') {
                     this.setLogout();
                 }
