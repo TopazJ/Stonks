@@ -65,15 +65,15 @@ def transaction_confirmation(transaction_id, market_maker_username):
             transaction.market_maker = market_maker
             transaction.update(market_maker=market_maker, complete=True)
 
-            owns = Owns.objects.filter(client=transaction.client, account=transaction.account, trade=transaction.trade)
+            owns = Owns.objects.get(client=transaction.client, account=transaction.account, trade=transaction.trade)
 
-            if len(owns) is 1:
+            if owns.exists():
                 if transaction.type is transaction.BUY:
-                    owns.update(quantity=owns.quantity + transaction.quantity)
+                    owns.save(quantity=owns.quantity + transaction.quantity)
                 elif transaction.type is transaction.SELL:
-                    owns.update(quantity=owns.quantity - transaction.quantity)
+                    owns.save(quantity=owns.quantity - transaction.quantity)
                 return True
-            elif len(owns) is 0 and transaction.type is transaction.BUY:
+            elif transaction.type is 'BUY':
                 Owns(client=transaction.client, account=transaction.account, trade=transaction.trade,
                      quantity=transaction.quantity).save()
                 return True
