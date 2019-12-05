@@ -123,8 +123,10 @@ def buy_into_pool(username, stock, quantity, fraction):
         return None
 
 
-def pool_confirmation(pool, market_maker_username):
+def pool_confirmation(date, client, trade, market_maker_username):
+    pool = Pool.objects.filter(date=date, client=client, trade=trade)
     if isinstance(pool, Pool):
+
         market_maker = User.objects.filter(username=market_maker_username).marketMaker
         if market_maker is not None:
             pool.market_maker = market_maker
