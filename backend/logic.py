@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+
 from backend.models import *
 
 # TODO: Notify all users when POOL is complete
@@ -5,7 +7,12 @@ from backend.models import *
 from backend.stock_access import get_stock_price_now
 
 
+def errorMessage(error_message):
+    return JsonResponse({'status': 'error', 'message': error_message})
 
+
+def successfulMessage(json_data):
+    return JsonResponse({**{'status': 'success'}, **json_data})
 
 
 # Buy Sell
@@ -13,7 +20,7 @@ from backend.views import *
 
 
 def check_balance_for_buy_transaction(username, purchase_amount):
-    query = Account.objects.filter(client=Client.objects.filter(username=username))
+    query = Account.objects.filter(client=User.objects.filter(username=username).client)
     account_balance_sum = 0
     for account in query:
         balance = account.balance
@@ -57,12 +64,13 @@ def buy_trade_transaction_creation(username, stock, quantity):
 
 def transaction_confirmation(transaction, market_maker_username):
     if isinstance(transaction, Transaction):
-        market_maker = MarketMaker.objects.filter(username=market_maker_username)
+        market_maker = User.objects.get(username=market_maker_username).market_maker
         if market_maker is not None:
             transaction.market_maker = market_maker
             transaction.update(market_maker=market_maker, complete=True)
 
             owns = Owns.objects.filter(client=transaction.client, account=transaction.account, trade=transaction.trade)
+
             if len(owns) is 1:
                 if transaction.type is transaction.BUY:
                     owns.update(quantity=owns.quantity + transaction.quantity)
@@ -81,7 +89,7 @@ def transaction_confirmation(transaction, market_maker_username):
 
 def is_eligible_to_sell_stock(username, account, stock, quantity):
     if isinstance(stock, Trade):
-        accounts = Account.objects.filter(client=Client.objects.filter(username=username))
+        accounts = Account.objects.filter(client=User.objects.filter(username=username))
         if len(accounts) > 0:
             for account in accounts:
                 owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
@@ -133,7 +141,7 @@ def buy_into_pool(username, stock, quantity, fraction):
 
 def pool_confirmation(pool, market_maker_username):
     if isinstance(pool, Transaction):
-        market_maker = MarketMaker.objects.filter(username=market_maker_username)
+        market_maker = User.objects.filter(username=market_maker_username).marketMaker
         if market_maker is not None:
             pool.market_maker = market_maker
             pool.save()
@@ -157,7 +165,7 @@ def pool_confirmation(pool, market_maker_username):
 
 """ check authenticatipn before every function
 def login(username, password):
-    client = Client.objects.get(username)
+    client = User.objects.get(username)
     if client is not None:
         if client.password is not password:
             errorMessage("WRONG PASSWORD")
@@ -171,11 +179,11 @@ def login(username, password):
 
 
 def get_user_accounts(username):
-    return Account.objects.filter(client=Client.objects.get(username))
+    return Account.objects.filter(client=User.objects.get(username).client)
 
 
 def get_user_account(username, account_no):
-    return Account.objects.filter(client=Client.objects.get(username)).get(account_no=account_no)
+    return Account.objects.filter(client=User.objects.get(username).client).get(account_no=account_no)
 
 
 def get_transactions_by_account(username, account_no):
@@ -183,7 +191,7 @@ def get_transactions_by_account(username, account_no):
 
 
 def create_support_ticket(username):
-    client = Client.objects.get(username=username)
+    client = User.objects.get(username=username).client
     support = Support.objects.all().order_by('?')[:1]
     Help(client=client, support=support).save()
 
@@ -196,14 +204,14 @@ def access_employee_data(employee_id):
         return employee
 
 
-def review_account(account_no, employee_id):
-    account = Account.objects.get(account_no=account_no)
+def review_account(account_no, employee_id, account_username):
+    account = Account.objects.get(client=User.objects.get(username=account_username).client, account_no=account_no)
     Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
     return account
 
 
-def enforce_rules(account_no, employee_id):
-    account = Account.objects.get(account_no=account_no)
+def enforce_rules(account_no, employee_id, account_username):
+    account = Account.objects.get(user=User.objects.get(username=account_username), account_no=account_no)
     Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
     return account
 
@@ -249,18 +257,22 @@ def get_prediction_history(stock):
     return Prediction.objects.filter(trade=stock)
 
 
-def register_employee(employee_id, ssn, salary):
-    if Employee.objects.get(employeeID=employee_id) is None:
-        Employee(employeeID=employee_id, SSN=ssn, salary=salary)
+def register_employee(username, password, employee_id, ssn, salary):
+    if User.objects.get(username=username) is None:
+        Employee(user=User(username=username, password=password), employeeID=employee_id, SSN=ssn, salary=salary)
     else:
         errorMessage("ID ALREADY USED")
 
 
 def register_client(username, password):
-    client = Client.objects.get(username=username)
+    client = User.objects.get(username=username).client
     if client is None:
         Client(username=username, password=password, is_banned=False)
     elif client.is_banned is True:
         errorMessage("BANNED")
     else:
         errorMessage("DUPLICATE")
+
+
+def get_owns(username):
+    client = User.objects.get(username=username).client

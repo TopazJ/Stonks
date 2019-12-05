@@ -10,16 +10,11 @@ from django.http import JsonResponse
 from backend.stock_access import *
 from django.contrib.auth.decorators import permission_required
 
+
 # Create your views here.
 
 
 
-def errorMessage(error_message):
-    return JsonResponse({'status': 'error', 'message': error_message})
-
-
-def successfulMessage(json_data):
-    JsonResponse({**{'status': 'success'}, **json_data})
 
 @permission_required('MarketMaker')
 def buy_trade(request):
@@ -76,11 +71,9 @@ def daily_stock(request):
         successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
 
 
-
-
 # ViewSets go here (access to models through API
 
-
+"""
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -174,3 +167,4 @@ class EnforceViewSet(viewsets.ModelViewSet):
 class ManageViewSet(viewsets.ModelViewSet):
     queryset = Manage.objects.all()
     serializer_class = ManageSerializer
+"""

@@ -1,10 +1,12 @@
 import re
 import uuid
 
+from django.contrib.auth.models import User
 from django.db import models
 
 
 class Employee(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     employeeID = models.CharField(max_length=9, primary_key=True)
     SSN = models.IntegerField(unique=True)
     salary = models.DecimalField(max_digits=9, decimal_places=2)
@@ -131,8 +133,7 @@ class Prediction(models.Model):
 
 
 class Client(models.Model):
-    username = models.CharField(max_length=150, primary_key=True)
-    password = models.CharField(max_length=150)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_banned = models.BooleanField(default=False)
 
     class Meta:
@@ -141,7 +142,7 @@ class Client(models.Model):
         ]
 
     def __str__(self):
-        return '%s' % self.username
+        return str(self.user)
 
 
 class Account(models.Model):
