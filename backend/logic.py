@@ -299,7 +299,7 @@ def get_owns(username, account_no):
             own_info[owl.trade] = owl.quantity
         else:
             own_info[owl.trade] = own_info[owl.trade] + owl.quantity
-    return own
+    return own_info
 
 
 def create_account(username):
