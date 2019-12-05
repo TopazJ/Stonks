@@ -6,6 +6,7 @@ import NavBar from "./navigation/NavBar.jsx";
 import CreateAccount from "./CreateAccount.jsx";
 import Dashboard from "./Dashboard.jsx";
 import Logout from "./Logout.jsx"
+import MarketMaker from "./MarketMaker.jsx";
 
 class App extends Component {
 
@@ -90,6 +91,9 @@ class App extends Component {
 							)}
 						/>
 					))}
+					<Route path={"/market-maker"}>
+						<MarketMaker/>
+					</Route>
 				</Switch>
 			</React.Fragment>
 			</BrowserRouter>

@@ -17,7 +17,7 @@ from backend.views import *
 
 
 def check_balance_for_buy_transaction(username, purchase_amount):
-    query = Account.objects.filter(client=User.objects.filter(username=username).client)
+    query = Account.objects.filter(client=User.objects.get(username=username).client)
     account_balance_sum = 0
     for account in query:
         balance = account.balance
@@ -44,13 +44,14 @@ def buy_trade_transaction_creation(username, symbol, quantity):
     :param quantity:
     :return:
     """
-    stock = Trade.objects.filter(symbol=symbol, exchange='TSX')
+    stock = Trade.objects.get(symbol=symbol, exchange='TSX')
     if isinstance(stock, Trade):
         eligible_account, can_purchase = check_balance_for_buy_transaction(username, stock.price * quantity)
         if can_purchase:
             if eligible_account is not None:
-                transaction = Transaction(market_maker=None, client=eligible_account.client, account=eligible_account,
-                                          trade=stock, quantity=quantity, type=Transaction.BUY).save()
+                transaction = Transaction.objects.create(market_maker=MarketMaker.objects.first(), client=eligible_account.client,
+                                                         account=eligible_account, trade=stock, quantity=quantity, type=Transaction.BUY)
+                transaction.save()
                 return transaction
     else:
         return None
@@ -58,7 +59,7 @@ def buy_trade_transaction_creation(username, symbol, quantity):
 
 def transaction_confirmation(transaction, market_maker_username):
     if isinstance(transaction, Transaction):
-        market_maker = User.objects.filter(username=market_maker_username).market_maker
+        market_maker = User.objects.get(username=market_maker_username).market_maker
         if market_maker is not None:
             transaction.market_maker = market_maker
             transaction.update(market_maker=market_maker, complete=True)
@@ -81,7 +82,7 @@ def transaction_confirmation(transaction, market_maker_username):
 
 def is_eligible_to_sell_stock(username, account, stock, quantity):
     if isinstance(stock, Trade):
-        accounts = Account.objects.filter(client=User.objects.filter(username=username).client)
+        accounts = Account.objects.filter(client=User.objects.get(username=username).client)
         if len(accounts) > 0:
             for account in accounts:
                 owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
@@ -167,12 +168,12 @@ def login(username, password):
 
 def get_user_accounts(username):
     client = User.objects.get(username=username).client
-    accoutns = Account.objects.filter(client=client)
-    return accoutns
+    accounts = Account.objects.filter(client=client)
+    return accounts
 
 
 def get_user_account(username, account_no):
-    return Account.objects.filter(client=User.objects.filter(username).client).filter(account_no=account_no)
+    return Account.objects.get(client=User.objects.get(username=username).client, account_no=account_no)
 
 
 def get_transactions_by_account(username, account_no):
@@ -261,6 +262,7 @@ def register_employee(username, password, employee_id, ssn, salary):
 
 
 def register_client(username, password):
+    print(username)
     user = User.objects.filter(username=username)
     if not user.exists():
         user = User.objects.create(username=username)

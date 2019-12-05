@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-class StockTable extends Component {
+class TransactionTable extends Component {
 
 
     renderHeaders=()=>{
@@ -14,24 +14,17 @@ class StockTable extends Component {
 
           return <tr key={val.exc+val.sym+val.quan}>
               {/*<th scope="row">{index}</th>*/}
+              <td>{val.id}</td>
               <td>{val.exc}</td>
               <td>{val.sym}</td>
               <td>{val.company}</td>
               <td>{val.quan}</td>
               <td>{val.price}</td>
               <td>{val.quan * val.price}</td>
-              <td>{this.yesOrNo(val.completed)}</td>
+              <td><button onClick={() => this.props.button(val.id)} className="btn btn-success">Complete</button></td>
           </tr>;
       })
     };
-
-     yesOrNo=(value)=>{
-        if (value){
-            return "Yes"
-        }
-        return "No"
-     };
-
 
     render() {
         return <table className="table">
@@ -47,4 +40,4 @@ class StockTable extends Component {
     }
 }
 
-export default StockTable;
+export default TransactionTable;

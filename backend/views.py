@@ -4,6 +4,7 @@ from backend.logic import *
 from backend.models import *
 from rest_framework import viewsets
 # from backend.serializers import *
+from django.forms.models import model_to_dict
 import json
 from django.http import JsonResponse
 from backend.stock_access import *
@@ -15,10 +16,11 @@ from backend.stock_access import *
 def buy_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        transaction = buy_trade_transaction_creation(request.user.get_username(), stock=data['stock'],
+        transaction = buy_trade_transaction_creation(request.user.get_username(), symbol=data['stock'],
                                                      quantity=data['quantity'])
         if transaction is not None:
-            response_data = serializers.serialize('json', transaction)
+            response_data = model_to_dict(transaction)
+            # response_data = serializers.serialize('json', [transaction])
             return successfulMessage(response_data)
         else:
             return errorMessage("Unable to create transaction")
@@ -27,10 +29,10 @@ def buy_trade(request):
 def sell_trade(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        transaction = sell_trade_transaction_creation(request.user.get_username(), stock=data['stock'],
+        transaction = sell_trade_transaction_creation(request.user.get_username(), symbol=data['stock'],
                                                       quantity=data['quantity'])
         if transaction is not None:
-            response_data = serializers.serialize('json', transaction)
+            response_data = serializers.serialize('json', [transaction])
             return successfulMessage(response_data)
         else:
             return errorMessage("Unable to create transaction")
@@ -39,6 +41,9 @@ def sell_trade(request):
 def complete_transaction(request):
     if request.method == 'POST':
         data = json.loads(request.body)
+
+
+
         result = transaction_confirmation(transaction=data['transaction'],
                                           market_maker_username=request.user.get_username())
         if result is None:
@@ -80,7 +85,7 @@ def daily_stock(request):
 def create_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result = register_client(request.user.get_username(), data['password'])
+        result = register_client(data['username'], data['password'])
         if result is None:
             return errorMessage("Unable to create account")
         else:
@@ -118,6 +123,7 @@ def get_accounts(request):
     # data['username'])
     return successfulMessage({'data': account_list})
 
+
 def get_predictions (request):
     data = json.loads(request.body)
     predictions = get_prediction_history(trade = data['stock'])
@@ -131,6 +137,7 @@ def save_predict (request):
     return successfulMessage(None)
 
 # TODO
+
 
 def create_ticket(request):
     if request.method == 'POST':
@@ -165,3 +172,36 @@ def solve_ticket(request):
         if solve_support_ticket(ticket_no=data['ticket_no']) is not None:
             return successfulMessage({})
     return errorMessage("FAIL")
+
+
+def get_transactions(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        transactions = get_transactions_by_account(username=request.user.get_username(), account_no=data['account_no'])
+        if transactions:
+            stuff = []
+            for transaction in transactions:
+                trade = transaction.trade
+                data = model_to_dict(transaction)
+                data['trade']=model_to_dict(trade)
+                stuff.append(data)
+            # transactions = serializers.serialize('json', transactions)
+            return successfulMessage({'data': stuff})
+    return errorMessage({})
+
+
+def get_mm_transactions(request):
+    if request.method == 'POST':
+        mm = MarketMaker.objects.get(user=User.objects.get(username=request.user.get_username()))
+        transactions = Transaction.objects.filter(market_maker=mm, complete=False)
+        if transactions:
+            stuff = []
+            for transaction in transactions:
+                if transaction.complete is False:
+                    trade = transaction.trade
+                    data = model_to_dict(transaction)
+                    data['trade'] = model_to_dict(trade)
+                    stuff.append(data)
+            return successfulMessage({'data': stuff})
+    return errorMessage({})
+
