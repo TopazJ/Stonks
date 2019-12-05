@@ -1,5 +1,5 @@
 import React from "react";
-import CSRFToken from './csrftoken.jsx';
+import CSRFToken from './CSRFToken.jsx';
 
 class LoginForm extends React.Component {
 
@@ -34,9 +34,12 @@ class LoginForm extends React.Component {
         }).then(res => res.json())
         .then(data => {
             if (data.status==='success'){
-            this.props.props.login()}}
-        )
-        .catch(err => console.error("Error:", err));
+                this.props.props.login();
+            }
+            else{
+                alert(data.status);
+            }
+        }).catch(err => console.error("Error:", err));
     };
 
 

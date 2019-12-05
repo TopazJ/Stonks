@@ -13,6 +13,7 @@ def successfulMessage(json_data):
 
 
 # Buy Sell
+from backend.views import *
 
 
 def check_balance_for_buy_transaction(username, purchase_amount):
@@ -161,8 +162,9 @@ def login(username, password):
 
 
 def get_user_accounts(username):
-    return Account.objects.filter(client=User.objects.filter(username).client)
-
+    client = User.objects.get(username=username).client
+    accoutns = Account.objects.filter(client=client)
+    return accoutns
 
 def get_user_account(username, account_no):
     return Account.objects.filter(client=User.objects.filter(username).client).filter(account_no=account_no)
@@ -258,7 +260,9 @@ def register_employee(username, password, employee_id, ssn, salary):
 def register_client(username, password):
     user = User.objects.filter(username=username)
     if not user.exists():
-        user = User(username=username, password=password).save()
+        user = User.objects.create(username=username)
+        user.set_password(password)
+        user.save()
         Client(user=user).save()
         if create_account(username):
             return True
@@ -273,7 +277,7 @@ def get_owns(username, account_no):
     return Trade.objects.filter(symbol=owns.trade.symbol)
 
 def create_account(username):
-    client = User.objects.filter(username=username).client
+    client = User.objects.get(username=username).client
     if client is not None:
         accounts = Account.objects.filter(client=client)
         account_no = len(accounts) + 1
