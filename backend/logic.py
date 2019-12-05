@@ -28,7 +28,7 @@ def check_balance_for_buy_transaction(username, purchase_amount):
     return None, False
 
 
-def buy_trade_transaction_creation(username, stock, quantity):
+def buy_trade_transaction_creation(username, symbol, quantity):
     """
     user places order
     server check if valid
@@ -43,6 +43,7 @@ def buy_trade_transaction_creation(username, stock, quantity):
     :param quantity:
     :return:
     """
+    stock = Trade.objects.get(symbol=symbol, exchange='TSX')
     if isinstance(stock, Trade):
         eligible_account, can_purchase = check_balance_for_buy_transaction(username, stock.price * quantity)
         if can_purchase:
@@ -255,8 +256,8 @@ def register_employee(username, password, employee_id, ssn, salary):
 
 
 def register_client(username, password):
-    client = User.objects.get(username=username).client
-    if client is None:
+    user = User.objects.get(username=username)
+    if user is None:
         user = User(username=username, password=password).save()
         Client(user=user).save()
         if create_account(username):
