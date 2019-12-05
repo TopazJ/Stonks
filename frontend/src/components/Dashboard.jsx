@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import StockTable from "./dashboard/StockTable.jsx";
+import OwnedTable from "./OwnedTable.jsx";
 
 class Dashboard extends Component {
 
@@ -7,7 +8,7 @@ class Dashboard extends Component {
         super(props);
         this.state={accounts:[],stocks:{}, show_account:true, selected_account:null, account_balance:null,
             addMoneyForm:{CCName:'',CCNum:'',CCV:'',cashMoney:0}, buyStockForm:{symbol:'', quantity: ''},
-            transactions:[], transaction_headers:['Exchange', 'Symbol', 'Company', 'Quantity', 'Price', 'Cost', 'Completed']};
+            transactions:[], transaction_headers:['Exchange', 'Symbol', 'Company', 'Quantity', 'Price', 'Cost', 'Completed'], owns:[]};
         this.fetchAccounts();
     }
 
@@ -69,6 +70,34 @@ class Dashboard extends Component {
         .catch(err => console.error("Error:", err));
     };
 
+    fetchOwns=()=>{
+        fetch('http://127.0.0.1:8000/api/owns/', {
+            method: 'POST',
+            body: JSON.stringify({account_no:this.state.selected_account}),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCookie('csrftoken')
+            }
+        }).then(res => res.json())
+        .then(data => {
+            const values = JSON.parse(data.data);
+            values.map(x=>{
+               this.setState(state => ({
+                    owns: [
+                        ...state.owns,
+                        // {exc: x.trade.exchange,
+                        //     sym: x.trade.symbol,
+                        //     company:x.trade.company_name,
+                        //     quan:x.quantity,
+                        //     price:x.trade.price
+                        // }
+                    ]
+                }));
+            });
+        })
+        .catch(err => console.error("Error:", err));
+    };
+
     handleBuyStockChange = (event) => {
         const target = event.target;
         const value = target.value;
@@ -93,6 +122,7 @@ class Dashboard extends Component {
         }).then(res => res.json()).then(data => {
             this.setState({show_account:false, selected_account:accountid, account_balance:accountbalance});
             this.fetchTransactions();
+            this.fetchOwns();
         }).catch(err=> console.error("Error", err));
 
     };
@@ -162,6 +192,32 @@ class Dashboard extends Component {
                     this.fetchTransactions();
                     console.log(data);
                 }).catch(err => console.error("Error:", err));
+        }
+    };
+
+    handleSell=(symbol, quantity)=>{
+        console.log(symbol, quantity);
+        if (quantity>0) {
+            fetch('http://127.0.0.1:8000/api/sell/', {
+                method: 'POST',
+                body: JSON.stringify({symbol: symbol, quantity: quantity}),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCookie('csrftoken')
+                }
+            }).then(res => res.json())
+                .then(data => {
+
+                    console.log(data);
+                    //TODO If statement here!
+
+                    this.setState({transactions: []});
+                    this.fetchOwns();
+                })
+                .catch(err => console.error("Error:", err));
+        }
+        else{
+            alert("Please enter a quantity greater than 0");
         }
     };
 
@@ -236,6 +292,10 @@ class Dashboard extends Component {
                 </div>
             </div>
             <div className="container" hidden={this.state.show_account}>
+
+                <OwnedTable headers = {['Exchange', 'Symbol', 'Company', 'Quantity', 'Price', 'Cost', 'Sell', 'Quantity Sell']}
+                                  values = {this.state.owns} button = {this.handleSell}/>
+
                 <StockTable headers = {this.state.transaction_headers} values={this.state.transactions}/>
 
 

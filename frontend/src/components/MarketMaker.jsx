@@ -27,21 +27,7 @@ class MarketMaker extends Component {
             //TODO If statement here!
 
             this.setState({transactions:[]});
-            data.data.map(x=>{
-                this.setState(state => ({
-                    transactions: [
-                        ...state.transactions,
-                        {   id: x.id,
-                            exc: x.trade.exchange,
-                            sym: x.trade.symbol,
-                            company:x.trade.company_name,
-                            quan:x.quantity,
-                            price:x.trade.price
-
-                        }
-                    ]
-                }));
-            });
+            this.fetchTransactions();
         })
         .catch(err => console.error("Error:", err));
     };
