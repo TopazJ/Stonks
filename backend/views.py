@@ -108,9 +108,9 @@ def see_account(request):
 def owns(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        trades = get_owns(username=request.user.get_username(), account_no=data['account_no'])
-        trades_list = serializers.serialize('json', trades)
-        return successfulMessage({'data': trades_list})
+        owns = get_owns(username=request.user.get_username(), account_no=data['account_no'])
+        owns = serializers.serialize('json', owns)
+        return successfulMessage({'data': owns})
 
 
 def get_accounts(request):
