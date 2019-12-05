@@ -17,7 +17,7 @@ class NavBar extends Component {
 
         return (
             <React.Fragment>
-                <nav className="navbar navbar-expand-lg bg-success navbar-light">
+                <nav className="navbar navbar-expand-lg navbar navbar-dark bg-dark">
                     <a className="navbar-brand" href="#">Stonks</a>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
                             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@ class NavBar extends Component {
                     </div>
                 </nav>
                 <button
-                    className="btn btn-success rounded float-right"
+                    className="btn btn-info rounded float-right"
                     style={topButtonStyle}
                     onClick={() => window.scrollTo(0, 0)}
                 >
@@ -59,13 +59,13 @@ class NavBar extends Component {
 
     renderNavButtons() {
         const style = {
-          padding:'5px'
+          margin:'5px'
         };
         return this.props.buttonLinks.map(l => (
             <NavLink
                 key={l.id}
                 style={style}
-                className="btn btn-outline-warning rounded"
+                className="btn btn-info rounded"
                 to={"/" + l.id}
             >
                 {l.text}
