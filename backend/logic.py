@@ -5,11 +5,11 @@ from backend.models import *
 from backend.stock_access import get_stock_price_now
 
 
-def nullErrorMessage(error_message):
-    print("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" + error_message)
+
 
 
 # Buy Sell
+from backend.views import errorMessage
 
 
 def check_balance_for_buy_transaction(username, purchase_amount):
@@ -44,14 +44,15 @@ def buy_trade_transaction_creation(username, stock, quantity):
         eligible_account, can_purchase = check_balance_for_buy_transaction(username, stock.price * quantity)
         if can_purchase:
             if eligible_account is not None:
-                return Transaction(market_maker=None, client=eligible_account.client, account=eligible_account,
-                                   trade=stock, quantity=quantity, type=Transaction.BUY)
+                transaction = Transaction(market_maker=None, client=eligible_account.client, account=eligible_account,
+                                   trade=stock, quantity=quantity, type=Transaction.BUY).save()
+                return transaction
             else:
-                nullErrorMessage("FUNDS TOO LOW - CAN PURCHASE WITH POOL")
+                errorMessage("FUNDS TOO LOW - CAN PURCHASE WITH POOL")
         else:
-            nullErrorMessage("FUNDS TOO LOW - CANNOT PURCHASE")
+            errorMessage("FUNDS TOO LOW - CANNOT PURCHASE")
     else:
-        nullErrorMessage("FATAL ERROR")
+        errorMessage("FATAL ERROR")
 
 
 def transaction_confirmation(transaction, market_maker_username):
@@ -59,7 +60,7 @@ def transaction_confirmation(transaction, market_maker_username):
         market_maker = MarketMaker.objects.filter(username=market_maker_username)
         if market_maker is not None:
             transaction.market_maker = market_maker
-            transaction.save()
+            transaction.update(market_maker=market_maker, complete=True)
 
             owns = Owns.objects.filter(client=transaction.client, account=transaction.account, trade=transaction.trade)
             if len(owns) is 1:
@@ -71,11 +72,11 @@ def transaction_confirmation(transaction, market_maker_username):
                 Owns(client=transaction.client, account=transaction.account, trade=transaction.trade,
                      quantity=transaction.quantity).save()
             else:
-                nullErrorMessage("DATABASE DUPLICATE")
+                errorMessage("DATABASE DUPLICATE")
         else:
-            nullErrorMessage("NOT A VALID MARKET MAKER")
+            errorMessage("NOT A VALID MARKET MAKER")
     else:
-        nullErrorMessage("FATAL ERROR")
+        errorMessage("FATAL ERROR")
 
 
 def is_eligible_to_sell_stock(username, account, stock, quantity):
@@ -87,9 +88,9 @@ def is_eligible_to_sell_stock(username, account, stock, quantity):
                 if owns.quantity > quantity:
                     return account, owns
         else:
-            nullErrorMessage("NO ACCOUNT")
+            errorMessage("NO ACCOUNT")
     else:
-        nullErrorMessage("FATAL ERROR")
+        errorMessage("FATAL ERROR")
     return None, None
 
 
@@ -98,10 +99,10 @@ def sell_trade_transaction_creation(username, stock, quantity):
         account, owns = is_eligible_to_sell_stock(username, stock, quantity)
         if account is not None and owns is not None:
             transaction = Transaction(market_maker=None, client=account.client, account=account,
-                                      trade=stock, quantity=quantity, type=Transaction.SELL)
+                                      trade=stock, quantity=quantity, type=Transaction.SELL).save()
             return transaction
     else:
-        nullErrorMessage("FATAL ERROR")
+        errorMessage("FATAL ERROR")
 
 
 # POOL
@@ -123,11 +124,11 @@ def buy_into_pool(username, stock, quantity, fraction):
                 return Pool(market_maker=None, client=eligible_account.client, account=eligible_account,
                             trade=stock, quantity=quantity, type=Transaction.BUY, fraction=fraction)
             else:
-                nullErrorMessage("FUNDS TOO LOW - CAN PURCHASE WITH POOL")
+                errorMessage("FUNDS TOO LOW - CAN PURCHASE WITH POOL")
         else:
-            nullErrorMessage("FUNDS TOO LOW - CANNOT PURCHASE")
+            errorMessage("FUNDS TOO LOW - CANNOT PURCHASE")
     else:
-        nullErrorMessage("FATAL ERROR")
+        errorMessage("FATAL ERROR")
 
 
 def pool_confirmation(pool, market_maker_username):
@@ -147,11 +148,11 @@ def pool_confirmation(pool, market_maker_username):
                 Owns(client=pool.client, account=pool.account, trade=pool.trade,
                      quantity=pool.quantity).save()
             else:
-                nullErrorMessage("DATABASE DUPLICATE")
+                errorMessage("DATABASE DUPLICATE")
         else:
-            nullErrorMessage("NOT A VALID MARKET MAKER")
+            errorMessage("NOT A VALID MARKET MAKER")
     else:
-        nullErrorMessage("FATAL ERROR")
+        errorMessage("FATAL ERROR")
 
 
 """ check authenticatipn before every function
@@ -159,13 +160,13 @@ def login(username, password):
     client = Client.objects.get(username)
     if client is not None:
         if client.password is not password:
-            nullErrorMessage("WRONG PASSWORD")
+            errorMessage("WRONG PASSWORD")
         elif client.is_banned is True:
-            nullErrorMessage("YOU ARE BANNED")
+            errorMessage("YOU ARE BANNED")
         else:
             return client
     else:
-        nullErrorMessage("DOES NOT EXIST")
+        errorMessage("DOES NOT EXIST")
 """
 
 
@@ -173,8 +174,12 @@ def get_user_accounts(username):
     return Account.objects.filter(client=Client.objects.get(username))
 
 
-def get_user_account(username, accountID):
-    return Account.objects.filter(client=Client.objects.get(username)).filter(accountID=accountID)
+def get_user_account(username, account_no):
+    return Account.objects.filter(client=Client.objects.get(username)).get(account_no=account_no)
+
+
+def get_transactions_by_account(username, account_no):
+    return Transaction.objects.filter(account=get_user_account(username, account_no))
 
 
 def create_support_ticket(username):
@@ -186,19 +191,19 @@ def create_support_ticket(username):
 def access_employee_data(employee_id):
     employee = Employee.objects.filter(employeeID=employee_id)
     if employee is None:
-        return nullErrorMessage("No such Employee")
+        return errorMessage("No such Employee")
     else:
         return employee
 
 
-def review_account(account_id, employee_id):
-    account = Account.objects.get(accountID=account_id)
+def review_account(account_no, employee_id):
+    account = Account.objects.get(account_no=account_no)
     Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
     return account
 
 
-def enforce_rules(account_id, employee_id):
-    account = Account.objects.get(accountID=account_id)
+def enforce_rules(account_no, employee_id):
+    account = Account.objects.get(account_no=account_no)
     Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
     return account
 
@@ -211,7 +216,7 @@ def solve_support_ticket(help_ob):
     if isinstance(help_ob, Help):
         help_ob.delete()
     else:
-        nullErrorMessage("NO SUCH OBJECT")
+        errorMessage("NO SUCH OBJECT")
 
 
 def get_all_tickets_by_support(employee_id):
@@ -226,12 +231,36 @@ def save_prediction(data_ti, ticker):
     trade_type = Trade.INDIVIDUAL
     rating = 3.0
     risk = Trade.HIGH_RISK
-
     trade = Trade(exchange=exchange, symbol=symbol, company_name=company_name, price=price, trade_type=trade_type,
-                  rating=rating, risk=risk).save()
+                  rating=rating, risk=risk)
+
+    if Trade.objects.filter(exchange=exchange, symbol=symbol) is None:
+        trade.save()
+    else:
+        Trade.objects.filter(exchange=exchange, symbol=symbol).update(price=price, trade_type=trade_type,
+                                                                      rating=rating, risk=risk)
+
     for key, value in data_ti:
-        Prediction(trade=trade, prediction=value)
+        if Prediction.objects.filter(date=key, trade=trade) is None:
+            Prediction(trade=trade, prediction=value, date=key).save()
 
 
 def get_prediction_history(stock):
     return Prediction.objects.filter(trade=stock)
+
+
+def register_employee(employee_id, ssn, salary):
+    if Employee.objects.get(employeeID=employee_id) is None:
+        Employee(employeeID=employee_id, SSN=ssn, salary=salary)
+    else:
+        errorMessage("ID ALREADY USED")
+
+
+def register_client(username, password):
+    client = Client.objects.get(username=username)
+    if client is None:
+        Client(username=username, password=password, is_banned=False)
+    elif client.is_banned is True:
+        errorMessage("BANNED")
+    else:
+        errorMessage("DUPLICATE")

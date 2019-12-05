@@ -5,142 +5,112 @@ from rest_framework import serializers
 class EmployeeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Employee
-        fields = ['employeeID', 'SSN', 'salary']
+        fields = '__all__'
 
 
 class EmpAddressSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = EmpAddress
-        fields = ['employee', 'street', 'city', 'province', 'postal_code']
+        fields = '__all__'
 
 
 class EmpNameSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = EmpAddress
-        fields = ['employeeI', 'fname', 'mname', 'lname']
+        fields = '__all__'
 
 
 class SupportSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Support
-        fields = ['employeeID', 'SSN', 'salary', 'customer_rating']
+        fields = '__all__'
 
 
 class AdminSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Admin
-        fields = ['employeeID', 'SSN', 'salary', 'rules']
+        fields = '__all__'
 
 
 class MarketMakerSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = MarketMaker
-        fields = ['employeeID', 'SSN', 'salary', 'AdminEmployeeID']
+        fields = '__all__'
 
 
 class TradeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Trade
-        fields = [
-            'exchange', 'symbol',
-            'company_name', 'price',
-            'trade_type', 'rating',
-            'risk']
+        fields = '__all__'
 
 
 class ETFSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ETF
-        fields = [
-            'exchange', 'symbol',
-            'company_name', 'price',
-            'trade_type', 'rating',
-            'risk', 'index']
+        fields = '__all__'
 
 
 class MutualFundSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = MutualFund
-        fields = [
-            'exchange', 'symbol',
-            'company_name', 'price',
-            'trade_type', 'rating',
-            'risk', 'manager', 'fee']
+        fields = '__all__'
 
 
 class PredictionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Prediction
-        fields = [
-            'trade', 'date',
-            'result']
+        fields = '__all__'
 
 
 class ClientSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Client
-        fields = [
-            'username', 'password',
-            'is_banned']
+        fields = '__all__'
 
 
 class AccountSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Account
-        fields = [
-            'client', 'accountID',
-            'balance', 'is_valid']
+        fields = '__all__'
 
 
 class OwnsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Owns
-        fields = [
-            'client', 'account',
-            'trade', 'quantity']
+        fields = '__all__'
 
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Owns
-        fields = [
-            'client', 'account',
-            'trade', 'quantity', 'market_maker']
+        fields = '__all__'
 
 
 class PoolSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Owns
-        fields = [
-            'client', 'account',
-            'trade', 'quantity', 'market_maker', 'fraction']
+        fields = '__all__'
 
 
 class ReviewSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Review
-        fields = [
-            'client', 'account',
-            'support']
+        fields = '__all__'
 
 
 class HelpSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Help
-        fields = [
-            'client', 'support',
-            'ticket_no']
+        fields = '__all__'
 
 
 class EnforceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Enforce
-        fields = [
-            'client', 'admin']
+        fields = '__all__'
 
 
 class ManageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Manage
-        fields = [
-            'employee']
+        fields = '__all__'
