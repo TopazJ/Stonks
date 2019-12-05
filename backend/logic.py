@@ -57,7 +57,8 @@ def buy_trade_transaction_creation(username, symbol, quantity):
         return None
 
 
-def transaction_confirmation(transaction, market_maker_username):
+def transaction_confirmation(transaction_id, market_maker_username):
+    transaction = Transaction.objects.get(pk=transaction_id)
     if isinstance(transaction, Transaction):
         market_maker = User.objects.get(username=market_maker_username).market_maker
         if market_maker is not None:

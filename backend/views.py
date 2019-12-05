@@ -41,10 +41,7 @@ def sell_trade(request):
 def complete_transaction(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-
-
-
-        result = transaction_confirmation(transaction=data['transaction'],
+        result = transaction_confirmation(transaction_id=data['id'],
                                           market_maker_username=request.user.get_username())
         if result is None:
             return errorMessage('Unable to complete transaction')
