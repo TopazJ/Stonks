@@ -25,13 +25,12 @@ class OwnedTable extends Component {
               <td>{val.price}</td>
               <td>{val.quan * val.price}</td>
               <td><button onClick={() => this.props.button(val.sym, this.state.form.quantity)} className="btn btn-primary">Sell</button></td>
-              <td><label htmlFor="quantity">Quantity</label>
-                        <input
+              <td><input
                             type="number"
                             name="quantity"
                             className="form-control"
                             id="quantity"
-                            placeholder="1"
+                            placeholder="Sell Quantity"
                             min="1"
                             onChange={this.handleInputChange}
                             required
