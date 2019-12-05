@@ -297,3 +297,8 @@ def add_money_to_account(username, account_no, amount):
         return successfulMessage({})
     else:
         return errorMessage("Invalid account or price")
+
+
+def get_all_incomplete_transactions():
+    transactions = Transaction.objects.filter(complete=False)
+    return transactions

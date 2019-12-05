@@ -45,7 +45,7 @@ router.register(r'm_manage', views.ManageViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api/', include('backend.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('auth/', include('authentication.urls')),
     re_path(r'^(?:.*)/?$', include('frontend.urls')),
