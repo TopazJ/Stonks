@@ -80,17 +80,16 @@ class Dashboard extends Component {
             }
         }).then(res => res.json())
         .then(data => {
-            const values = JSON.parse(data.data);
-            values.map(x=>{
+            data.data.map(x=>{
                this.setState(state => ({
                     owns: [
                         ...state.owns,
-                        // {exc: x.trade.exchange,
-                        //     sym: x.trade.symbol,
-                        //     company:x.trade.company_name,
-                        //     quan:x.quantity,
-                        //     price:x.trade.price
-                        // }
+                        {exc: x.trade.exchange,
+                            sym: x.trade.symbol,
+                            company:x.trade.company_name,
+                            quan:x.quantity,
+                            price:x.trade.price
+                        }
                     ]
                 }));
             });
@@ -200,7 +199,7 @@ class Dashboard extends Component {
         if (quantity>0) {
             fetch('http://127.0.0.1:8000/api/sell/', {
                 method: 'POST',
-                body: JSON.stringify({symbol: symbol, quantity: quantity}),
+                body: JSON.stringify({stock: symbol, quantity: parseInt(quantity)}),
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': this.getCookie('csrftoken')

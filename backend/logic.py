@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-
+from django.forms.models import model_to_dict
 from backend.models import *
 from backend.stock_access import get_stock_price_now
 
@@ -93,12 +93,12 @@ def transaction_confirmation(transaction_id, market_maker_username):
         return None
 
 
-def is_eligible_to_sell_stock(username, account, stock, quantity):
+def is_eligible_to_sell_stock(username, stock, quantity):
     if isinstance(stock, Trade):
         accounts = Account.objects.filter(client=User.objects.get(username=username).client)
         if len(accounts) > 0:
             for account in accounts:
-                owns = Owns.objects.filter(client=account.client, account=account, trade=stock)
+                owns = Owns.objects.get(client=account.client, account=account, trade=stock)
                 if owns is not None and owns.quantity > quantity:
                     return account, owns
     return None, None
@@ -109,7 +109,7 @@ def sell_trade_transaction_creation(username, symbol, quantity):
     if isinstance(stock, Trade):
         account, owns = is_eligible_to_sell_stock(username, stock, quantity)
         if account is not None and owns is not None:
-            transaction = Transaction(market_maker=None, client=account.client, account=account,
+            transaction = Transaction(market_maker=MarketMaker.objects.first(), client=account.client, account=account,
                                       trade=stock, quantity=quantity, type=Transaction.SELL)
             transaction.save()
             return transaction
@@ -276,7 +276,6 @@ def register_employee(username, password, employee_id, ssn, salary):
 
 
 def register_client(username, password):
-    print(username)
     user = User.objects.filter(username=username)
     if not user.exists():
         user = User.objects.create(username=username)
@@ -293,12 +292,11 @@ def get_owns(username, account_no):
     client = User.objects.get(username=username).client
     account = Account.objects.get(account_no=account_no, client=client)
     own = Owns.objects.filter(client=client, account=account)
-    own_info = {}
+    own_info = []
     for owl in own:
-        if owl.trade not in own_info:
-            own_info[owl.trade] = owl.quantity
-        else:
-            own_info[owl.trade] = own_info[owl.trade] + owl.quantity
+        data = model_to_dict(owl)
+        data['trade'] = model_to_dict(owl.trade)
+        own_info.append(data)
     return own_info
 
 
