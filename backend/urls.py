@@ -15,5 +15,7 @@ urlpatterns = [
     path('complete-pool/', views.complete_pool),
     path('daily-stock/', views.daily_stock),
     path('owns/', views.owns),
-    path('get-accounts/', views.get_accounts)
+    path('get-accounts/', views.get_accounts),
+    path('get-prediction-history/', views.get_predictions),
+    path('save-predictions/', views.save_predict)
 ]
