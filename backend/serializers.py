@@ -1,4 +1,4 @@
-from backend.models import *
+"""from backend.models import *
 from rest_framework import serializers
 
 
@@ -114,3 +114,4 @@ class ManageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Manage
         fields = '__all__'
+"""
