@@ -1,8 +1,13 @@
 import React, { Component } from "react";
-import { HashLink } from "./hashLink.js";
-import {Router} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 
 class NavBar extends Component {
+    constructor(props){
+        super(props);
+        this.props.initButtons();
+    }
+
+
     render() {
         const topButtonStyle = {
             position: "fixed",
@@ -22,6 +27,9 @@ class NavBar extends Component {
                         <ul className="navbar-nav mr-auto">
                             {this.renderNavLinks()}
                         </ul>
+                        <span className="navbar-text">
+                            {this.renderNavButtons()}
+                        </span>
                     </div>
                 </nav>
                 <button
@@ -37,15 +45,27 @@ class NavBar extends Component {
 
     renderNavLinks() {
         return this.props.navLinks.map(l => (
-            <li className="nav-item">
-                 <a key={l.id}
+            <li className="nav-item" key={l.id}>
+                 <a
                     className="nav-link"
-                    href={"#" + l.id}
+                    href={"/" + "#" + l.id}
                  >
                 {l.text}
                 </a>
             </li>
 
+        ));
+    }
+
+    renderNavButtons() {
+        return this.props.buttonLinks.map(l => (
+            <NavLink
+                key={l.id}
+                className="btn btn-outline-warning rounded"
+                to={"/" + l.id}
+            >
+                {l.text}
+            </NavLink>
         ));
     }
 }
