@@ -147,7 +147,7 @@ def pool_confirmation(pool, market_maker_username):
 
 """ check authenticatipn before every function
 def login(username, password):
-    client = User.objects.get(username)
+    client = User.objects.filter(username)
     if client is not None:
         if client.password is not password:
             errorMessage("WRONG PASSWORD")
@@ -161,11 +161,11 @@ def login(username, password):
 
 
 def get_user_accounts(username):
-    return Account.objects.filter(client=User.objects.get(username).client)
+    return Account.objects.filter(client=User.objects.filter(username).client)
 
 
 def get_user_account(username, account_no):
-    return Account.objects.filter(client=User.objects.get(username).client).get(account_no=account_no)
+    return Account.objects.filter(client=User.objects.filter(username).client).filter(account_no=account_no)
 
 
 def get_transactions_by_account(username, account_no):
@@ -173,7 +173,7 @@ def get_transactions_by_account(username, account_no):
 
 
 def create_support_ticket(username):
-    client = User.objects.get(username=username).client
+    client = User.objects.filter(username=username).client
     support = Support.objects.all().order_by('?')[:1]
     if client is not None and support is not None:
         Help(client=client, support=support).save()
@@ -187,25 +187,25 @@ def access_employee_data(employee_id):
 
 
 def review_account(account_no, employee_id, account_username):
-    account = Account.objects.get(client=User.objects.get(username=account_username).client, account_no=account_no)
+    account = Account.objects.filter(client=User.objects.filter(username=account_username).client, account_no=account_no)
     if account is not None:
-        Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
+        Review(account=account, client=account.client, support=Support.objects.filter(employeeID=employee_id)).save()
         return account
     else:
         return None
 
 
 def enforce_rules(account_no, employee_id, account_username):
-    account = Account.objects.get(user=User.objects.get(username=account_username), account_no=account_no)
+    account = Account.objects.filter(user=User.objects.filter(username=account_username), account_no=account_no)
     if account is not None:
-        Review(account=account, client=account.client, support=Support.objects.get(employeeID=employee_id)).save()
+        Review(account=account, client=account.client, support=Support.objects.filter(employeeID=employee_id)).save()
         return account
     else:
         return None
 
 
 def solve_support_ticket(help_ticket_no):
-    Help.objects.get(ticket_no=help_ticket_no).delete()
+    Help.objects.filter(ticket_no=help_ticket_no).delete()
     return True
 
 
@@ -218,13 +218,13 @@ def solve_support_ticket(help_ob):
 
 
 def get_all_tickets_by_support(employee_id):
-    return Help.objects.filter(support=Support.objects.get(employeeID=employee_id))
+    return Help.objects.filter(support=Support.objects.filter(employeeID=employee_id))
 
 
 def save_prediction(data_ti, ticker):
     exchange = 'TSX'
     symbol = ticker
-    company_name = ticker  # TODO get it with alphavantage
+    company_name = ticker
     price = get_stock_price_now(ticker)
     trade_type = Trade.INDIVIDUAL
     rating = 3.0
@@ -248,7 +248,7 @@ def get_prediction_history(stock):
 
 
 def register_employee(username, password, employee_id, ssn, salary):
-    if User.objects.get(username=username).employee.exists():
+    if User.objects.filter(username=username).employee.exists():
         Employee(user=User(username=username, password=password), employeeID=employee_id, SSN=ssn, salary=salary).save()
         return True
     else:
@@ -257,7 +257,7 @@ def register_employee(username, password, employee_id, ssn, salary):
 
 def register_client(username, password):
     user = User.objects.filter(username=username)
-    if user.exists():
+    if not user.exists():
         user = User(username=username, password=password).save()
         Client(user=user).save()
         if create_account(username):
@@ -267,9 +267,10 @@ def register_client(username, password):
 
 
 def get_owns(username, account_no):
-    return Owns.objects.filter(client=User.objects.filter(username=username).client,
-                               account=Account.objects.filter(account_no=account_no))
 
+    owns = Owns.objects.filter(client=User.objects.filter(username=username).client,
+                               account=Account.objects.filter(account_no=account_no))
+    return Trade.objects.filter(symbol=owns.trade.symbol)
 
 def create_account(username):
     client = User.objects.filter(username=username).client

@@ -70,3 +70,8 @@ def see_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         get_user_accounts(username=data['username'])
+
+
+def get_owned(request):
+    data = request.body
+    get_owns(username=data['username'], account_no=data['account_no'])
