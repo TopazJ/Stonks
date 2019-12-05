@@ -67,17 +67,27 @@ def transaction_confirmation(transaction_id, market_maker_username):
             transaction.complete = True
             transaction.save()
 
-            owns = Owns.objects.get(client=transaction.client, account=transaction.account, trade=transaction.trade)
+            owns = Owns.objects.filter(client=transaction.client, account=transaction.account, trade=transaction.trade)
 
             if owns.exists():
-                if transaction.type is transaction.BUY:
-                    owns.save(quantity=owns.quantity + transaction.quantity)
-                elif transaction.type is transaction.SELL:
-                    owns.save(quantity=owns.quantity - transaction.quantity)
+                owns = owns.first()
+
+                if transaction.type == transaction.BUY:
+                    owns.quantity = owns.quantity + transaction.quantity
+                    owns.save()
+                    transaction.account.balance = transaction.account.balance - transaction.trade.price * transaction.quantity
+                    transaction.account.save()
+                elif transaction.type == transaction.SELL:
+                    owns.quantity = owns.quantity - transaction.quantity
+                    owns.save()
+                    transaction.account.balance = transaction.account.balance + transaction.trade.price * transaction.quantity
+                    transaction.account.save()
                 return True
-            elif transaction.type is 'BUY':
+            elif transaction.type == 'BUY':
                 Owns(client=transaction.client, account=transaction.account, trade=transaction.trade,
                      quantity=transaction.quantity).save()
+                transaction.account.balance = transaction.account.balance - transaction.trade.price * transaction.quantity
+                transaction.account.save()
                 return True
     else:
         return None
@@ -95,12 +105,13 @@ def is_eligible_to_sell_stock(username, account, stock, quantity):
 
 
 def sell_trade_transaction_creation(username, symbol, quantity):
-    stock = Trade.objects.filter(symbol=symbol, exchange='TSX')
+    stock = Trade.objects.get(symbol=symbol, exchange='TSX')
     if isinstance(stock, Trade):
         account, owns = is_eligible_to_sell_stock(username, stock, quantity)
         if account is not None and owns is not None:
             transaction = Transaction(market_maker=None, client=account.client, account=account,
-                                      trade=stock, quantity=quantity, type=Transaction.SELL).save()
+                                      trade=stock, quantity=quantity, type=Transaction.SELL)
+            transaction.save()
             return transaction
     else:
         return None

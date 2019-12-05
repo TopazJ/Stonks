@@ -32,7 +32,7 @@ def sell_trade(request):
         transaction = sell_trade_transaction_creation(request.user.get_username(), symbol=data['stock'],
                                                       quantity=data['quantity'])
         if transaction is not None:
-            response_data = serializers.serialize('json', [transaction])
+            response_data = model_to_dict(transaction)
             return successfulMessage(response_data)
         else:
             return errorMessage("Unable to create transaction")
