@@ -39,11 +39,11 @@ def sell_trade(request):
 def complete_transaction(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result =  transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
+        result = transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
         if result is None:
             return errorMessage('Unable to complete transaction')
         else:
-            return result
+            return successfulMessage({})
 
 
 def buy_pool(request):
@@ -65,100 +65,41 @@ def complete_pool(request):
         if result is None:
             return errorMessage("Unable to complete pool")
         else:
-            return result
+            return successfulMessage({})
 
 
 def daily_stock(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         return successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
-        return successfulMessage(get_stock_json_intraday(ticker=data['ticker']))
 
 
-def create_account (request):
+def create_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         result = register_client(data['username'],data['password'])
         if result is None:
             return errorMessage("Unable to create account")
         else:
-            return result
+            return successfulMessage({})
 
 
-def add_money (request):
+def add_money(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         result = add_money_to_account(data['username'], data['account_no'], data['amount'])
         if result is None:
             return errorMessage("Unable to add money (can't make it rain :( )")
         else:
-            return result
-
-
-# ViewSets go here (access to models through API
-
-"""
-class EmployeeViewSet(viewsets.ModelViewSet):
-    queryset = Employee.objects.all()
-    serializer_class = EmployeeSerializer
-
-
-class EmpAddressViewSet(viewsets.ModelViewSet):
-    queryset = EmpAddress.objects.all()
-    serializer_class = EmpAddressSerializer
-
-
-class EmpNameViewSet(viewsets.ModelViewSet):
-    queryset = EmpName.objects.all()
-    serializer_class = EmpNameSerializer
-
-
-class SupportViewSet(viewsets.ModelViewSet):
-    queryset = Support.objects.all()
-    serializer_class = SupportSerializer
-
-
-class AdminViewSet(viewsets.ModelViewSet):
-    queryset = Admin.objects.all()
-    serializer_class = AdminSerializer
-
-
-class MarketMakerViewSet(viewsets.ModelViewSet):
-    queryset = MarketMaker.objects.all()
-    serializer_class = MarketMakerSerializer
-
-
-class TradeViewSet(viewsets.ModelViewSet):
-    queryset = Trade.objects.all()
-    serializer_class = TradeSerializer
-
-
-class ETFViewSet(viewsets.ModelViewSet):
-    queryset = ETF.objects.all()
-    serializer_class = ETFSerializer
-
-
-class MutualFundViewSet(viewsets.ModelViewSet):
-    queryset = MutualFund.objects.all()
-    serializer_class = MutualFundSerializer
-
-
-class PredictionViewSet(viewsets.ModelViewSet):
-    queryset = Prediction.objects.all()
-    serializer_class = PredictionSerializer
-
-
-class ClientViewSet(viewsets.ModelViewSet):
-    queryset = Client.objects.all()
-    serializer_class = ClientSerializer
-
-
-class AccountViewSet(viewsets.ModelViewSet):
-    queryset = Account.objects.all()
-    serializer_class = AccountSerializer
+            return successfulMessage({})
 
 
 def see_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        get_user_accounts(username=data['username'])
+        return successfulMessage(AccountSerializer(get_user_accounts(username=data['username'])))
+
+def owns (request):
+    data = json.loads(request.body)
+    owned = get_owns(data['username'])
+    return OwnsSerializer (owned)

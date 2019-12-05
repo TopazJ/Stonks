@@ -13,7 +13,6 @@ def successfulMessage(json_data):
 
 
 # Buy Sell
-from backend.views import errorMessage
 
 
 def check_balance_for_buy_transaction(username, purchase_amount):
