@@ -4,7 +4,7 @@ class Dashboard extends Component {
 
     constructor(props) {
         super(props);
-        this.state={accountNums:[], stocks:{}, show_account:true, selected_account:null,
+        this.state={accounts:[],stocks:{}, show_account:true, selected_account:null, account_balance:null,
             addMoneyForm:{CCName:'',CCNum:'',CCV:'',cashMoney:0}, buyStockForm:{symbol:'', quantity: ''}};
         this.fetchAccounts();
     }
@@ -19,17 +19,17 @@ class Dashboard extends Component {
             }
         }).then(res => res.json())
         .then(data => {
-            console.log(data);
             const values = JSON.parse(data.data);
             values.map(x=>(
                 this.setState(state => ({
-                    accountNums: [
-                        ...state.accountNums,
-                        x.fields.account_no
+
+                    accounts: [
+                        ...state.accounts,
+                        {accountNum: x.fields.account_no,
+                        balance:x.fields.balance}
                     ]
                 }))
             ));
-            console.log(this.state);
         })
         .catch(err => console.error("Error:", err));
     };
@@ -38,7 +38,6 @@ class Dashboard extends Component {
         const target = event.target;
         const value = target.value;
         const name = target.name;
-        console.log(value);
         this.setState(state => ({
             buyStockForm: {
                 ...state.buyStockForm,
@@ -47,7 +46,7 @@ class Dashboard extends Component {
         }))
     };
 
-    handleClickStonks = (event, accountid) =>{
+    handleClickStonks = (event, accountid, accountbalance) =>{
         const test = JSON.stringify({account_no:accountid});
         fetch('http://127.0.0.1:8000/api/owns/', {
             method: 'POST',
@@ -57,8 +56,7 @@ class Dashboard extends Component {
                 'X-CSRFToken': this.getCookie('csrftoken')
             }
         }).then(res => res.json()).then(data => {
-            this.setState({show_account:false, selected_account:accountid});
-            console.log(data);
+            this.setState({show_account:false, selected_account:accountid, account_balance:accountbalance});
         }).catch(err=> console.error("Error", err));
 
     };
@@ -66,13 +64,57 @@ class Dashboard extends Component {
     handleAddMoney=(event) => {
         if (event.target.checkValidity()) {
             event.preventDefault();
-            console.log(this.state.addMoneyForm);
             const values = {
                 account_no: this.state.selected_account,
                 amount: parseInt(this.state.addMoneyForm.cashMoney)
             };
-            console.log(values);
             fetch('http://127.0.0.1:8000/api/add-money/', {
+                method: 'POST',
+                body: JSON.stringify(values),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCookie('csrftoken')
+                }
+            }).then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === "success"){
+                        this.setState(
+                            {account_balance:parseInt(this.state.account_balance)+parseInt(this.state.addMoneyForm.cashMoney)});
+                //         const accountNum =this.state.selected_account;
+                //         const balance = this.state.account_balance;
+                //         this.setState(state => ({
+                //         accounts: [
+                //             ...state.accounts,
+                //             {[accountNum]:accountNum, [balance]:balance}
+                //     ]
+                // }));
+                    }
+                }).catch(err => console.error("Error:", err));
+        }
+    };
+
+    handleMoneyInput = (event) =>{
+       const target = event.target;
+       const value = target.value;
+       const name = target.name;
+       this.setState(state => ({
+            addMoneyForm: {
+                ...state.addMoneyForm,
+                [name]: value
+            }
+       }))
+    };
+
+    handleBuyStock=(event)=>{
+        if (event.target.checkValidity()) {
+            event.preventDefault();
+            const values = {
+                symbol: this.state.buyStockForm.symbol,
+                quantity: this.state.buyStockForm.quantity
+            };
+            console.log(values);
+            fetch('http://127.0.0.1:8000/api/buy/', {
                 method: 'POST',
                 body: JSON.stringify(values),
                 headers: {
@@ -86,25 +128,13 @@ class Dashboard extends Component {
         }
     };
 
-    handleMoneyInput = (event) =>{
-       const target = event.target;
-       const value = target.value;
-       const name = target.name;
-       console.log(value);
-       this.setState(state => ({
-            addMoneyForm: {
-                ...state.addMoneyForm,
-                [name]: value
-            }
-       }))
-    };
-
-    handleBuyStock=(event)=>{
-        if (event.target.checkValidity()) {
-            console.log(event.target);
-            event.preventDefault();
-            console.log("Trying to buy a stock");
-        }
+    displayList=()=>{
+        return this.state.accounts.map(yeet =>
+        {
+            return <a key={yeet.accountNum} className="dropdown-item"
+                      onClick={((event => this.handleClickStonks(event, yeet.accountNum, yeet.balance)))}>
+                {yeet.accountNum+" - "+yeet.balance}</a>;
+        })
     };
 
     render() {
@@ -117,26 +147,24 @@ class Dashboard extends Component {
                             Accounts
                         </button>
                         <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            {this.state.accountNums.map(yeet =>
-                            {
-                                return <a key={yeet} className="dropdown-item"
-                                          onClick={((event => this.handleClickStonks(event, yeet)))}>{yeet}</a>;
-                            })}
+                            {this.displayList()}
                         </div>
                     </div>
                     <p hidden={this.state.show_account}>
                         Selected Account Number: {this.state.selected_account}
+                        <br/>
+                        Selected Account Balance {this.state.account_balance}
                     </p>
                     <form className="px-4 py-3" onSubmit={this.handleBuyStock} hidden={this.state.show_account}>
                         <div className="form-group">
                             <label htmlFor="exampleDropdownStockSymbol">Stock Symbol</label>
                             <input onChange={this.handleBuyStockChange} type="text" className="form-control"
-                                   id="exampleDropdownStockSymbol" pattern="[A-Z]{1,6}" required/>
+                                   name="symbol" id="exampleDropdownStockSymbol" pattern="[A-Z]{1,6}" required/>
                         </div>
                         <div className="form-group">
                             <label htmlFor="exampleQuantity">Quantity</label>
                             <input onChange={this.handleBuyStockChange}
-                                type="text" className="form-control" id="exampleQuantity" pattern="^[1-9][0-9]*$" required/>
+                                  name="quantity" type="text" className="form-control" id="exampleQuantity" pattern="^[1-9][0-9]*$" required/>
                         </div>
                         <button type="submit" className="btn btn-primary">Purchase Stocks</button>
                     </form>
