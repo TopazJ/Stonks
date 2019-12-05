@@ -60,10 +60,12 @@ def buy_trade_transaction_creation(username, symbol, quantity):
 def transaction_confirmation(transaction_id, market_maker_username):
     transaction = Transaction.objects.get(pk=transaction_id)
     if isinstance(transaction, Transaction):
-        market_maker = User.objects.get(username=market_maker_username).market_maker
+        market_maker = MarketMaker.objects.get(user=User.objects.get(username=market_maker_username))
         if market_maker is not None:
             transaction.market_maker = market_maker
-            transaction.update(market_maker=market_maker, complete=True)
+            transaction.market_maker = market_maker
+            transaction.complete = True
+            transaction.save()
 
             owns = Owns.objects.filter(client=transaction.client, account=transaction.account, trade=transaction.trade)
 
@@ -73,7 +75,7 @@ def transaction_confirmation(transaction_id, market_maker_username):
                 elif transaction.type is transaction.SELL:
                     owns.update(quantity=owns.quantity - transaction.quantity)
                 return True
-            elif len(owns) is 0 and transaction.type is transaction.BUY:
+            elif len(owns) is 0 and transaction.type is "BUY":
                 Owns(client=transaction.client, account=transaction.account, trade=transaction.trade,
                      quantity=transaction.quantity).save()
                 return True
