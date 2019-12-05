@@ -20,7 +20,7 @@ def get_stock_json_daily(ticker):
 def get_stock_price_now(ticker):
     t1 = TimeSeries(key=API_KEY, output_format='json')
     t1a, _ = t1.get_daily(symbol=ticker, outputsize='compact')
-    return next(iter(t1a.values()))
+    return next(iter(t1a.values()))['4. close']
 
 
 def get_stock_moving_average(ticker):

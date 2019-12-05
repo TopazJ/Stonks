@@ -21,6 +21,7 @@ from backend import views
 
 # Wire up our API using automatic URL routing.
 router = routers.DefaultRouter()
+"""
 router.register(r'm_employee', views.EmployeeViewSet)
 router.register(r'm_emp_address', views.EmpAddressViewSet)
 router.register(r'm_emp_name', views.EmpNameViewSet)
@@ -40,7 +41,7 @@ router.register(r'm_review', views.ReviewViewSet)
 router.register(r'm_help', views.HelpViewSet)
 router.register(r'm_enforce', views.EnforceViewSet)
 router.register(r'm_manage', views.ManageViewSet)
-
+"""
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('admin/', admin.site.urls),

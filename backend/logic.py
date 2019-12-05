@@ -273,6 +273,26 @@ def register_client(username, password):
     else:
         errorMessage("DUPLICATE")
 
+def get_owns(username, account_no):
+    owns = Owns.objects.filter(client=User.objects.get(username=username).client,
+                               account=Account.objects.filter(account_no=account_no))
+    return owns
 
 def get_owns(username):
     client = User.objects.get(username=username).client
+    if client is not None:
+        accounts = Account.objects.filter(client=client)
+        account_no = len(accounts)+1
+        Account(client=client, account_no=account_no).save()
+        return successfulMessage({})
+    else:
+        return errorMessage("NO SUCH CLIENT")
+
+
+def add_money_to_account(username, account_no, amount):
+    account = Account.objects.get(client=User.objects.get(username=username).client, account_no=account_no)
+    if account is not None and amount > 0:
+        account.update(balance=account.balance+amount)
+        return successfulMessage({})
+    else:
+        return errorMessage("Invalid account or price")
