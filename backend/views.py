@@ -102,7 +102,8 @@ def see_account(request):
 
 def owns(request):
     data = json.loads(request.body)
-    trades = get_owns(data['username'], data['account_no'])
+    print(data)
+    trades = get_owns(request.user.get_username(), data['account_no'])
     trade_list = serializers.serialize('json', trades)
     return successfulMessage({'data': trade_list})
 
