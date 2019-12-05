@@ -27,7 +27,7 @@ class CreateAccount extends Component{
                 this.setState({created:true});
             }
         })
-        .catch(err => console.error("Error:", err));
+        .catch(err => alert("Error communicating with server."));
     };
 
 
