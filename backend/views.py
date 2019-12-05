@@ -61,8 +61,7 @@ def buy_pool(request):
 def complete_pool(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        if pool.exists():
-            result = pool_confirmation(date = data ['date'], client = data ['client'], trade = data['trade'], market_maker_username=data['username'])
+        result = pool_confirmation(date = data ['date'], client = data ['client'], trade = data['trade'], market_maker_username=data['username'])
         if result is None:
             return errorMessage("Unable to complete pool")
         else:
