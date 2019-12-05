@@ -52,7 +52,7 @@ class Support(Employee):
 
     class Meta:
         permissions = [
-            ("Support", "Can support them clients")
+            ('Support', 'Can support them clients')
         ]
 
 
@@ -65,7 +65,7 @@ class MarketMaker(Employee):
 
     class Meta:
         permissions = [
-            ("MarketMaker", "Can do market maker things")
+            ('MarketMaker', 'Can do market maker things')
         ]
 
 
