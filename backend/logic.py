@@ -43,7 +43,7 @@ def buy_trade_transaction_creation(username, symbol, quantity):
     :param quantity:
     :return:
     """
-    stock = Trade.objects.get(symbol=symbol, exchange='TSX')
+    stock = Trade.objects.filter(symbol=symbol, exchange='TSX')
     if isinstance(stock, Trade):
         eligible_account, can_purchase = check_balance_for_buy_transaction(username, stock.price * quantity)
         if can_purchase:
@@ -57,7 +57,7 @@ def buy_trade_transaction_creation(username, symbol, quantity):
 
 def transaction_confirmation(transaction, market_maker_username):
     if isinstance(transaction, Transaction):
-        market_maker = User.objects.get(username=market_maker_username).market_maker
+        market_maker = User.objects.filter(username=market_maker_username).market_maker
         if market_maker is not None:
             transaction.market_maker = market_maker
             transaction.update(market_maker=market_maker, complete=True)
@@ -231,14 +231,14 @@ def save_prediction(data_ti, ticker):
     risk = Trade.HIGH_RISK
     trade = Trade(exchange=exchange, symbol=symbol, company_name=company_name, price=price, trade_type=trade_type,
                   rating=rating, risk=risk)
-    if Trade.objects.filter(exchange=exchange, symbol=symbol) is None:
+    if Trade.objects.filter(exchange=exchange, symbol=symbol).exists():
         trade.save()
     else:
         Trade.objects.filter(exchange=exchange, symbol=symbol).update(price=price, trade_type=trade_type,
                                                                       rating=rating, risk=risk)
 
     for key, value in data_ti:
-        if Prediction.objects.filter(date=key, trade=trade) is None:
+        if Prediction.objects.filter(date=key, trade=trade).exists():
             Prediction(trade=trade, prediction=value, date=key).save()
     return True
 
@@ -248,7 +248,7 @@ def get_prediction_history(stock):
 
 
 def register_employee(username, password, employee_id, ssn, salary):
-    if User.objects.get(username=username).employee is None:
+    if User.objects.get(username=username).employee.exists():
         Employee(user=User(username=username, password=password), employeeID=employee_id, SSN=ssn, salary=salary).save()
         return True
     else:
@@ -256,8 +256,8 @@ def register_employee(username, password, employee_id, ssn, salary):
 
 
 def register_client(username, password):
-    user = User.objects.get(username=username)
-    if user is None:
+    user = User.objects.filter(username=username)
+    if user.exists():
         user = User(username=username, password=password).save()
         Client(user=user).save()
         if create_account(username):
@@ -267,12 +267,12 @@ def register_client(username, password):
 
 
 def get_owns(username, account_no):
-    return Owns.objects.filter(client=User.objects.get(username=username).client,
+    return Owns.objects.filter(client=User.objects.filter(username=username).client,
                                account=Account.objects.filter(account_no=account_no))
 
 
 def create_account(username):
-    client = User.objects.get(username=username).client
+    client = User.objects.filter(username=username).client
     if client is not None:
         accounts = Account.objects.filter(client=client)
         account_no = len(accounts) + 1
@@ -283,7 +283,7 @@ def create_account(username):
 
 
 def add_money_to_account(username, account_no, amount):
-    account = Account.objects.get(client=User.objects.get(username=username).client, account_no=account_no)
+    account = Account.objects.filter(client=User.objects.filter(username=username).client, account_no=account_no)
     if account is not None and amount > 0:
         account.update(balance=account.balance + amount)
         return True
