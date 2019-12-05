@@ -105,6 +105,7 @@ def owns(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         owns = get_owns(username=request.user.get_username(), account_no=data['account_no'])
+        owns = serializers.serialize('json', owns)
         return successfulMessage({'data': owns})
 
 
