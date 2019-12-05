@@ -275,8 +275,7 @@ def register_client(username, password):
 def get_owns(username, account_no):
     client = User.objects.get(username=username).client
     account = Account.objects.get(account_no=account_no, client=client)
-    own = Owns.objects.get(client=client,
-                           account=account)
+    own = Owns.objects.get(client=client, account=account)
     return Trade.objects.filter(symbol=own.trade.symbol)
 
 
