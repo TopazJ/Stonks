@@ -11,6 +11,11 @@ class Employee(models.Model):
     SSN = models.IntegerField(unique=True)
     salary = models.DecimalField(max_digits=9, decimal_places=2)
 
+    class Meta:
+        permissions = [
+            ("Employee", "Can do employee things")
+        ]
+
     def __str__(self):
         return '%s' % self.employeeID
 
@@ -45,6 +50,11 @@ class EmpName(models.Model):
 class Support(Employee):
     customer_rating = models.DecimalField(max_digits=2, decimal_places=1)
 
+    class Meta:
+        permissions = [
+            ('Support', 'Can support them clients')
+        ]
+
 
 class Admin(Employee):
     rules = models.FileField(upload_to='uploads/%Y/%m/%d/')
@@ -52,6 +62,11 @@ class Admin(Employee):
 
 class MarketMaker(Employee):
     AdminEmployeeID = models.ForeignKey('Admin', on_delete=models.SET_NULL, null=True, related_name='AEmpID')
+
+    class Meta:
+        permissions = [
+            ('MarketMaker', 'Can do market maker things')
+        ]
 
 
 class Trade(models.Model):
@@ -120,6 +135,11 @@ class Prediction(models.Model):
 class Client(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_banned = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = [
+            ("Client", "Can do client things")
+        ]
 
     def __str__(self):
         return str(self.user)
