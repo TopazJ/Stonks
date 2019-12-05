@@ -39,11 +39,11 @@ def sell_trade(request):
 def complete_transaction(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        result =  transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
+        result = transaction_confirmation(transaction=data['transaction'], market_maker_username=data['username'])
         if result is None:
             return errorMessage('Unable to complete transaction')
         else:
-            return result
+            return successfulMessage({})
 
 
 def buy_pool(request):
@@ -65,7 +65,7 @@ def complete_pool(request):
         if result is None:
             return errorMessage("Unable to complete pool")
         else:
-            return result
+            return successfulMessage({})
 
 
 def daily_stock(request):
@@ -81,20 +81,32 @@ def create_account(request):
         if result is None:
             return errorMessage("Unable to create account")
         else:
-            return result
+            return successfulMessage({})
 
 
-def add_money (request):
+def add_money(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         result = add_money_to_account(data['username'], data['account_no'], data['amount'])
         if result is None:
             return errorMessage("Unable to add money (can't make it rain :( )")
         else:
-            return result
+            return successfulMessage({})
 
 
 def see_account(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        get_user_accounts(username=data['username'])
+        return successfulMessage(AccountSerializer(get_user_accounts(username=data['username'])))
+
+
+def owns (request):
+    data = json.loads(request.body)
+    owned = get_owns(data['username'], data['account_no'])
+    return successfulMessage(OwnsSerializer(owned))
+
+
+def get_accounts (request):
+    data = json.loads(request.body)
+    accounts = get_user_account(data['username'])
+    return successfulMessage(AccountSerializer(accounts))
