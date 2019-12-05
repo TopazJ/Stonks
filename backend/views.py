@@ -100,10 +100,11 @@ def see_account(request):
         return successfulMessage(None) #AccountSerializer(get_user_accounts(username=data['username'])))
 
 
-def owns (request):
+def owns(request):
     data = json.loads(request.body)
-    owned = get_owns(data['username'], data['account_no'])
-    return successfulMessage(None) #OwnsSerializer(owned))
+    trades = get_owns(data['username'], data['account_no'])
+    trade_list = serializers.serialize('json', trades)
+    return successfulMessage({'data': trade_list})
 
 
 def get_accounts(request):
