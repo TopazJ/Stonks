@@ -247,8 +247,8 @@ class Polices(models.Model):
 
 # TODO: not sure this works
 class Manage(models.Model):
-    underling = models.ForeignKey('employee', on_delete=models.CASCADE)
-    supervisor = models.ForeignKey('employee', on_delete=models.CASCADE)
+    underling = models.ForeignKey('employee', on_delete=models.CASCADE, related_name='under')
+    supervisor = models.ForeignKey('employee', on_delete=models.CASCADE, related_name='super')
 
     def __str__(self):
         return str(self.employee)
