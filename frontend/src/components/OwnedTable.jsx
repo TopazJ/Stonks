@@ -15,9 +15,9 @@ class OwnedTable extends Component {
     };
 
     renderRows=()=>{
-      return this.props.values.map((val) => {
+      return this.props.values.map((val, index) => {
 
-          return <tr key={val.exc+val.sym+val.quan}>
+          return <tr key={index}>
               <td>{val.exc}</td>
               <td>{val.sym}</td>
               <td>{val.company}</td>

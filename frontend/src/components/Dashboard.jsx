@@ -245,7 +245,7 @@ class Dashboard extends Component {
                         <div className="dropdown">
                             <button className="btn btn-warning dropdown-toggle btn-block" type="button" id="dropdownMenuButton"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Accounts
+                                Account
                             </button>
                             <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 {this.displayList()}
