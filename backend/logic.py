@@ -49,8 +49,10 @@ def buy_trade_transaction_creation(username, symbol, quantity):
         eligible_account, can_purchase = check_balance_for_buy_transaction(username, stock.price * quantity)
         if can_purchase:
             if eligible_account is not None:
-                transaction = Transaction.objects.create(market_maker=MarketMaker.objects.first(), client=eligible_account.client,
-                                                         account=eligible_account, trade=stock, quantity=quantity, type=Transaction.BUY)
+                transaction = Transaction.objects.create(market_maker=MarketMaker.objects.first(),
+                                                         client=eligible_account.client,
+                                                         account=eligible_account, trade=stock, quantity=quantity,
+                                                         type=Transaction.BUY)
                 transaction.save()
                 return transaction
     else:
@@ -323,3 +325,25 @@ def add_money_to_account(username, account_no, amount):
 
 def get_all_incomplete_transactions():
     return Transaction.objects.filter(complete=False)
+
+
+def get_employee_manager(employee_username):
+    return Manage.objects.get(
+        underling=Employee.objects.get(user=User.objects.get(username=employee_username))).supervisor
+
+
+def get_manager_employees(manager_username):
+    manage = Manage.objects.filter(
+        supervisor=Employee.objects.get(user=User.objects.get(username=manager_username)))
+    employee_list = []
+    for man in manage:
+        employee_list.append(man.underling)
+    return employee_list
+
+
+def get_police(market_maker_username):
+    admins = Polices.objects.filter(market_maker=MarketMaker.objects.get(user=User.objects.get(username=market_maker_username)))
+    admin_list = []
+    for admin in admins:
+        admin_list.append(admins.admin)
+    return admin_list

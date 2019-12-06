@@ -234,9 +234,20 @@ class Enforce(models.Model):
         return str(self.client) + str(self.admin)
 
 
+class Polices(models.Model):
+    admin = models.ForeignKey('Admin', on_delete=models.PROTECT)
+    market_maker = models.ForeignKey('MarketMaker', on_delete=models.PROTECT)
+
+    class Meta:
+        unique_together = ('market_maker', 'admin')
+
+    def __str__(self):
+        return str(self.market_maker) + str(self.admin)
+
+
 # TODO: not sure this works
 class Manage(models.Model):
-    employee = models.ForeignKey('employee', on_delete=models.CASCADE)
+    underling = models.ForeignKey('employee', on_delete=models.CASCADE)
     supervisor = models.ForeignKey('employee', on_delete=models.CASCADE)
 
     def __str__(self):
