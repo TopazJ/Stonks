@@ -7,6 +7,7 @@ import CreateAccount from "./CreateAccount.jsx";
 import Dashboard from "./Dashboard.jsx";
 import Logout from "./Logout.jsx"
 import MarketMaker from "./MarketMaker.jsx";
+import Home from './Home.jsx'
 
 class App extends Component {
 
@@ -93,6 +94,9 @@ class App extends Component {
 					))}
 					<Route path={"/market-maker"}>
 						<MarketMaker/>
+					</Route>
+					<Route path='*'>
+						<Home/>
 					</Route>
 				</Switch>
 			</React.Fragment>

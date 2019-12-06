@@ -20,6 +20,7 @@ class StockTable extends Component {
               <td>{val.quan}</td>
               <td>{val.price}</td>
               <td>{val.quan * val.price}</td>
+              <td>{val.type}</td>
               <td>{this.yesOrNo(val.completed)}</td>
           </tr>;
       })

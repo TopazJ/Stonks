@@ -8,7 +8,7 @@ class Dashboard extends Component {
         super(props);
         this.state={accounts:[],stocks:{}, show_account:true, selected_account:null, account_balance:null,
             addMoneyForm:{CCName:'',CCNum:'',CCV:'',cashMoney:0}, buyStockForm:{symbol:'', quantity: ''},
-            transactions:[], transaction_headers:['Exchange', 'Symbol', 'Company', 'Quantity', 'Price', 'Cost', 'Completed'], owns:[]};
+            transactions:[], transaction_headers:['Exchange', 'Symbol', 'Company', 'Quantity', 'Price', 'Cost', 'Type', 'Completed'], owns:[]};
         this.fetchAccounts();
     }
 
@@ -37,6 +37,7 @@ class Dashboard extends Component {
                             company:x.trade.company_name,
                             quan:x.quantity,
                             price:x.trade.price,
+                            type:x.type,
                             completed:x.complete
                         }
                     ]
@@ -146,14 +147,21 @@ class Dashboard extends Component {
                     if (data.status === "success"){
                         this.setState(
                             {account_balance:parseInt(this.state.account_balance)+parseInt(this.state.addMoneyForm.cashMoney)});
-                //         const accountNum =this.state.selected_account;
-                //         const balance = this.state.account_balance;
-                //         this.setState(state => ({
-                //         accounts: [
-                //             ...state.accounts,
-                //             {[accountNum]:accountNum, [balance]:balance}
-                //     ]
-                // }));
+                        const accountNum =this.state.selected_account;
+                        const balance = this.state.account_balance;
+
+                        this.setState(state => {
+                            let stateAccounts = state.accounts;
+                            const index = stateAccounts.findIndex(account => account.accountNum === accountNum);
+
+                            if (index !== -1) {
+                                stateAccounts[index] = {
+                                    accountNum: accountNum,
+                                    balance: balance
+                                };
+                            }
+                            return { accounts: stateAccounts };
+                });
                     }
                 }).catch(err => console.error("Error:", err));
         }
@@ -210,7 +218,7 @@ class Dashboard extends Component {
                     console.log(data);
                     //TODO If statement here!
 
-                    this.setState({transactions: []});
+                    this.setState({owns: []});
                     this.fetchOwns();
                 })
                 .catch(err => console.error("Error:", err));
