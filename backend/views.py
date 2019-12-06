@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.core import serializers
+from backend.prediction import run
 from backend.logic import *
 from backend.models import *
 from rest_framework import viewsets

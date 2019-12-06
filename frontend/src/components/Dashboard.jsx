@@ -243,7 +243,7 @@ class Dashboard extends Component {
                 <div className="row">
                     <div className="col-sm">
                         <div className="dropdown">
-                            <button className="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton"
+                            <button className="btn btn-warning dropdown-toggle btn-block" type="button" id="dropdownMenuButton"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Accounts
                             </button>
