@@ -6,7 +6,7 @@ class MarketMaker extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {transactions:[],headers:['ID','Exchange', 'Symbol', 'Company', 'Quantity', 'Price', 'Cost', 'Complete']};
+        this.state = {transactions:[],headers:['ID','Exchange', 'Symbol', 'Company', 'Quantity', 'Price', 'Cost', 'Type', 'Complete']};
         this.fetchTransactions();
 
     }
@@ -52,7 +52,8 @@ class MarketMaker extends Component {
                             sym: x.trade.symbol,
                             company:x.trade.company_name,
                             quan:x.quantity,
-                            price:x.trade.price
+                            price:x.trade.price,
+                            type:x.type
                         }
                     ]
                 }));

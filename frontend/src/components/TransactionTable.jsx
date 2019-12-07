@@ -13,7 +13,6 @@ class TransactionTable extends Component {
       return this.props.values.map((val, index) => {
 
           return <tr key={index}>
-              {/*<th scope="row">{index}</th>*/}
               <td>{val.id}</td>
               <td>{val.exc}</td>
               <td>{val.sym}</td>
@@ -21,6 +20,7 @@ class TransactionTable extends Component {
               <td>{val.quan}</td>
               <td>{val.price}</td>
               <td>{val.quan * val.price}</td>
+              <td>{val.type}</td>
               <td><button onClick={() => this.props.button(val.id)} className="btn btn-success">Complete</button></td>
           </tr>;
       })

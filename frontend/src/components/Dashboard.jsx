@@ -81,8 +81,9 @@ class Dashboard extends Component {
             }
         }).then(res => res.json())
         .then(data => {
+            this.setState({owns:[]});
             data.data.map(x=>{
-               this.setState(state => ({
+                this.setState(state => ({
                     owns: [
                         ...state.owns,
                         {exc: x.trade.exchange,
